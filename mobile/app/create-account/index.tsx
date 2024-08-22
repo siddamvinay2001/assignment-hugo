@@ -1,6 +1,13 @@
 import React, { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
-import { Button, IconButton, TextInput, Checkbox } from "react-native-paper";
+import {
+  Button,
+  IconButton,
+  TextInput,
+  Checkbox,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useUserStore } from "@/store/UserStore";
@@ -55,119 +62,121 @@ export default function CreateAccount() {
   }, [name, nickname, email, isChecked]);
 
   return (
-    <SafeAreaView style={styles.mainContainer}>
-      <IconButton
-        icon="arrow-left"
-        size={30}
-        onPress={() => {
-          clearForm();
-          router.push("/signup");
-        }}
-      />
-      <View style={styles.heroSection}>
-        <CustomText
-          type="primary"
-          variant="displaySmall"
-          content="Create Account"
-          style={styles.textColor}
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <SafeAreaView style={styles.mainContainer}>
+        <IconButton
+          icon="arrow-left"
+          size={30}
+          onPress={() => {
+            clearForm();
+            router.push("/signup");
+          }}
         />
-
-        <View style={styles.inputContainer}>
+        <View style={styles.heroSection}>
           <CustomText
             type="primary"
-            variant="titleLarge"
-            content="Name"
-            required
-            style={styles.inputLabel}
+            variant="displaySmall"
+            content="Create Account"
+            style={styles.textColor}
           />
-          <TextInput
-            mode="outlined"
-            outlineColor={errors.name ? "#eb2917" : "white"}
-            activeOutlineColor={errors.name ? "#eb2917" : "white"}
-            value={name}
-            onChangeText={(text) => setName(text)}
-            textColor="#193063"
-            placeholder="Enter your name"
-            style={[styles.textInput, errors.name && styles.errorInput]}
-          />
-          {errors.name && (
+
+          <View style={styles.inputContainer}>
             <CustomText
-              type="secondary"
-              content={`* ${errors.name}`}
-              style={styles.errorText}
+              type="primary"
+              variant="titleLarge"
+              content="Name"
+              required
+              style={styles.inputLabel}
             />
-          )}
-        </View>
+            <TextInput
+              mode="outlined"
+              outlineColor={errors.name ? "#eb2917" : "white"}
+              activeOutlineColor={errors.name ? "#eb2917" : "white"}
+              value={name}
+              onChangeText={(text) => setName(text)}
+              textColor="#193063"
+              placeholder="Enter your name"
+              style={[styles.textInput, errors.name && styles.errorInput]}
+            />
+            {errors.name && (
+              <CustomText
+                type="secondary"
+                content={`* ${errors.name}`}
+                style={styles.errorText}
+              />
+            )}
+          </View>
 
-        <View style={styles.inputContainer}>
-          <CustomText
-            type="primary"
-            variant="titleLarge"
-            content="Nickname"
-            style={styles.inputLabel}
-          />
-          <TextInput
-            mode="outlined"
-            outlineColor="white"
-            activeOutlineColor="white"
-            value={nickname}
-            onChangeText={(text) => setNickname(text)}
-            textColor="#193063"
-            placeholder="Enter your nickname"
-            style={styles.textInput}
-          />
-        </View>
-
-        <View style={styles.inputContainer}>
-          <CustomText
-            type="primary"
-            variant="titleLarge"
-            content="Email"
-            required
-            style={styles.inputLabel}
-          />
-          <TextInput
-            mode="outlined"
-            outlineColor={errors.email ? "#eb2917" : "white"}
-            activeOutlineColor={errors.email ? "#eb2917" : "white"}
-            value={email}
-            onChangeText={(text) => setEmail(text)}
-            textColor="#193063"
-            placeholder="Enter your email"
-            style={[styles.textInput, errors.email && styles.errorInput]}
-          />
-          {errors.email && (
+          <View style={styles.inputContainer}>
             <CustomText
-              type="secondary"
-              content={`* ${errors.email}`}
-              style={styles.errorText}
+              type="primary"
+              variant="titleLarge"
+              content="Nickname"
+              style={styles.inputLabel}
             />
-          )}
-        </View>
+            <TextInput
+              mode="outlined"
+              outlineColor="white"
+              activeOutlineColor="white"
+              value={nickname}
+              onChangeText={(text) => setNickname(text)}
+              textColor="#193063"
+              placeholder="Enter your nickname"
+              style={styles.textInput}
+            />
+          </View>
 
-        <View style={styles.checkboxContainer}>
-          <Checkbox
-            status={isChecked ? "checked" : "unchecked"}
-            onPress={() => setChecked(!isChecked)}
-            color={errors.isChecked ? "#eb2917" : undefined}
-          />
-          <CustomText
-            type="primary"
-            content="Please accept it if you are above 18"
-            style={styles.checkboxText}
-          />
-        </View>
+          <View style={styles.inputContainer}>
+            <CustomText
+              type="primary"
+              variant="titleLarge"
+              content="Email"
+              required
+              style={styles.inputLabel}
+            />
+            <TextInput
+              mode="outlined"
+              outlineColor={errors.email ? "#eb2917" : "white"}
+              activeOutlineColor={errors.email ? "#eb2917" : "white"}
+              value={email}
+              onChangeText={(text) => setEmail(text)}
+              textColor="#193063"
+              placeholder="Enter your email"
+              style={[styles.textInput, errors.email && styles.errorInput]}
+            />
+            {errors.email && (
+              <CustomText
+                type="secondary"
+                content={`* ${errors.email}`}
+                style={styles.errorText}
+              />
+            )}
+          </View>
 
-        <Button
-          mode="contained"
-          onPress={() => alert("EVENT")}
-          style={styles.button}
-          disabled={!isFormValid}
-        >
-          Continue
-        </Button>
-      </View>
-    </SafeAreaView>
+          <View style={styles.checkboxContainer}>
+            <Checkbox
+              status={isChecked ? "checked" : "unchecked"}
+              onPress={() => setChecked(!isChecked)}
+              color={errors.isChecked ? "#eb2917" : undefined}
+            />
+            <CustomText
+              type="primary"
+              content="Please accept it if you are above 18"
+              style={styles.checkboxText}
+            />
+          </View>
+
+          <Button
+            mode="contained"
+            onPress={() => alert("EVENT")}
+            style={styles.button}
+            disabled={!isFormValid}
+          >
+            Continue
+          </Button>
+        </View>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 }
 
