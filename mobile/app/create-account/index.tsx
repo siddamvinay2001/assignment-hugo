@@ -1,13 +1,11 @@
 import React, { useEffect } from "react";
-import { StyleSheet, View } from "react-native";
 import {
-  Button,
-  IconButton,
-  TextInput,
-  Checkbox,
+  StyleSheet,
+  View,
   TouchableWithoutFeedback,
   Keyboard,
-} from "react-native-paper";
+} from "react-native";
+import { Button, IconButton, TextInput, Checkbox } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useUserStore } from "@/store/UserStore";
@@ -31,8 +29,6 @@ export default function CreateAccount() {
     clearForm,
   } = useUserStore();
 
-  const [isFormValid, setIsFormValid] = React.useState<boolean>(false);
-
   useEffect(() => {
     const validate = () => {
       try {
@@ -43,7 +39,6 @@ export default function CreateAccount() {
           isChecked,
         });
         setErrors({});
-        setIsFormValid(true);
       } catch (e) {
         if (e instanceof z.ZodError) {
           const errorMessages: { [key: string]: string } = {};
@@ -54,12 +49,19 @@ export default function CreateAccount() {
           });
           setErrors(errorMessages);
         }
-        setIsFormValid(false);
       }
     };
 
     validate();
   }, [name, nickname, email, isChecked]);
+
+  const isFormValid = Object.keys(errors).length === 0;
+
+  const handleContinue = () => {
+    if (isFormValid) {
+      router.push("/set-password");
+    }
+  };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -168,7 +170,7 @@ export default function CreateAccount() {
 
           <Button
             mode="contained"
-            onPress={() => alert("EVENT")}
+            onPress={handleContinue}
             style={styles.button}
             disabled={!isFormValid}
           >
