@@ -1,4 +1,4 @@
-import { useProfileStore } from "@/store/UserStore";
+import { useProfileStore, useUserStore } from "@/store/UserStore";
 import { SessionContextType } from "@/types/Session.types";
 import { useRouter } from "expo-router";
 import {
@@ -15,24 +15,37 @@ export const SessionProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const router = useRouter();
-  const [sessionActive, setSessionActive] = useState<boolean>(false);
-  const { profiles } = useProfileStore();
-  const login = () => setSessionActive(true);
-  const logout = () => setSessionActive(false);
+  const [authenticated, setIsAuthenticated] = useState<boolean>(false);
+  const { profiles, loadProfiles, clearCurrentProfile } = useProfileStore();
+  const { clearForm } = useUserStore();
   useEffect(() => {
-    if (!sessionActive) {
-      if (profiles.length === 0) {
-        router.push("/signup");
-      } else {
-        router.push("/login");
-      }
+    if (authenticated) {
+      console.log("Came here");
+      clearForm();
+      router.replace("/");
+    } else {
+      const initialize = async () => {
+        clearCurrentProfile();
+        clearForm();
+        await loadProfiles();
+        const updatedProfiles = useProfileStore.getState().profiles;
+        if (updatedProfiles.length === 0) {
+          router.replace("/signup");
+        } else {
+          router.replace("/login");
+        }
+      };
+      initialize();
     }
-  }, []);
+  }, [authenticated]);
+  const setAuthenticated = (auth) => {
+    setIsAuthenticated(auth);
+  };
   return (
     <SessionContext.Provider
       value={{
-        login,
-        logout,
+        authenticated,
+        setAuthenticated,
       }}
     >
       {children}
@@ -43,7 +56,7 @@ export const SessionProvider: React.FC<{ children: ReactNode }> = ({
 export const useSession = () => {
   const context = useContext(SessionContext);
   if (context === undefined) {
-    throw new Error("useSession must be wrapped in a <SessionProvider/>");
+    throw new Error("useSession must be used within a <SessionProvider/>");
   }
   return context;
 };

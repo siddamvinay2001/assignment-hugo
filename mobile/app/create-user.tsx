@@ -1,25 +1,25 @@
-import React, { useEffect } from "react";
+import CustomText from "@/components/CustomText";
+import { useUserStore } from "@/store/UserStore";
 import {
-  StyleSheet,
   View,
+  StyleSheet,
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
-import { Button, IconButton, TextInput, Checkbox } from "react-native-paper";
+import { TextInput, Button, Checkbox, IconButton } from "react-native-paper";
+import { useEffect, useCallback } from "react";
+import { z } from "zod";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { useUserStore } from "@/store/UserStore";
-import CustomText from "@/components/CustomText";
-import { formSchema } from "@/utils/validationSchema";
-import { z } from "zod";
-
-export default function CreateAccount() {
-  const router = useRouter();
+import { userSchema } from "@/utils/validationSchema";
+import debounce from "lodash/debounce";
+import { useSession } from "@/providers/SessionProvider";
+export default function CreateUser() {
   const {
     name,
     nickname,
     email,
-    isChecked,
+    checked,
     errors,
     setName,
     setNickname,
@@ -28,16 +28,17 @@ export default function CreateAccount() {
     setErrors,
     clearForm,
   } = useUserStore();
+  const router = useRouter();
+  const { authenticated } = useSession();
+  if (authenticated) {
+    router.replace("/");
+  }
 
-  useEffect(() => {
-    const validate = () => {
+  // Debounced validation function
+  const validate = useCallback(
+    debounce(() => {
       try {
-        formSchema.parse({
-          name,
-          nickname,
-          email,
-          isChecked,
-        });
+        userSchema.parse({ name, nickname, email, checked });
         setErrors({});
       } catch (e) {
         if (e instanceof z.ZodError) {
@@ -50,28 +51,25 @@ export default function CreateAccount() {
           setErrors(errorMessages);
         }
       }
-    };
+    }, 300),
+    [name, nickname, email, checked]
+  ); // Debounce dependency
 
-    validate();
-  }, [name, nickname, email, isChecked]);
+  useEffect(() => {
+    validate(); // Validate whenever dependencies change
+  }, [validate]); // Only re-run validation if validate function changes
 
-  const isFormValid = Object.keys(errors).length === 0;
-
-  const handleContinue = () => {
-    if (isFormValid) {
-      router.push("/set-password");
-    }
-  };
+  const isFormValid = checked && Object.keys(errors).length === 0;
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <SafeAreaView style={styles.mainContainer}>
         <IconButton
           icon="arrow-left"
-          size={30}
+          size={24}
           onPress={() => {
             clearForm();
-            router.push("/signup");
+            router.back();
           }}
         />
         <View style={styles.heroSection}>
@@ -157,9 +155,9 @@ export default function CreateAccount() {
 
           <View style={styles.checkboxContainer}>
             <Checkbox
-              status={isChecked ? "checked" : "unchecked"}
-              onPress={() => setChecked(!isChecked)}
-              color={errors.isChecked ? "#eb2917" : undefined}
+              status={checked ? "checked" : "unchecked"}
+              onPress={() => setChecked(!checked)}
+              color={errors.checked ? "#eb2917" : undefined}
             />
             <CustomText
               type="primary"
@@ -170,7 +168,7 @@ export default function CreateAccount() {
 
           <Button
             mode="contained"
-            onPress={handleContinue}
+            onPress={() => isFormValid && router.push("/create-password")}
             style={styles.button}
             disabled={!isFormValid}
           >
@@ -186,8 +184,8 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     paddingVertical: 30,
-    paddingHorizontal: 10,
-    backgroundColor: "#f0f0f0",
+    paddingHorizontal: 20,
+    backgroundColor: "#F6F6EC",
   },
   heroSection: {
     flex: 1,
