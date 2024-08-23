@@ -1,10 +1,20 @@
 import { SessionProvider } from "@/providers/SessionProvider";
-import { Slot } from "expo-router";
+import { Stack } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 export default function RootLayout() {
   return (
     <SessionProvider>
-      <Slot />
+      <Stack>
+        <Stack.Screen
+          name="confirm-password"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen name="create-user" options={{ headerShown: false }} />
+        <Stack.Screen name="create-password" options={{ headerShown: false }} />
+        <Stack.Screen name="signup" options={{ headerShown: false }} />
+        <Stack.Screen name="login" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      </Stack>
     </SessionProvider>
   );
 }

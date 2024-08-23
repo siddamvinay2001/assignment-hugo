@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -35,9 +35,7 @@ export default function CreatePassword() {
   const { addProfile, setCurrentProfile } = useProfileStore();
   const router = useRouter();
   const { authenticated } = useSession();
-  if (authenticated) {
-    router.replace("/");
-  }
+
   const [passwordArray, setPasswordArray] = useState(Array(4).fill(""));
   const [confirmPasswordArray, setConfirmPasswordArray] = useState(
     Array(4).fill("")
@@ -74,13 +72,9 @@ export default function CreatePassword() {
     }
   };
 
-  const handleFinish = (secure) => {
-    if (secure) {
-      validatePassword();
-      setProtected(true);
-    } else {
-      setProtected(false);
-    }
+  const handleFinish = async (secure: boolean) => {
+    validatePassword();
+    setProtected(secure);
     const profile = {
       name: name,
       nickname: nickname,
@@ -88,9 +82,8 @@ export default function CreatePassword() {
       password: secure ? password : "",
       isProtected: secure,
     };
-    console.log("Clicked");
-    addProfile(profile);
     setCurrentProfile(profile);
+    await addProfile(profile);
     setAuthenticated(true);
   };
 

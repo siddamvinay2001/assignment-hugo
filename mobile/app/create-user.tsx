@@ -30,11 +30,7 @@ export default function CreateUser() {
   } = useUserStore();
   const router = useRouter();
   const { authenticated } = useSession();
-  if (authenticated) {
-    router.replace("/");
-  }
 
-  // Debounced validation function
   const validate = useCallback(
     debounce(() => {
       try {
@@ -53,11 +49,11 @@ export default function CreateUser() {
       }
     }, 300),
     [name, nickname, email, checked]
-  ); // Debounce dependency
+  );
 
   useEffect(() => {
-    validate(); // Validate whenever dependencies change
-  }, [validate]); // Only re-run validation if validate function changes
+    validate();
+  }, [validate]);
 
   const isFormValid = checked && Object.keys(errors).length === 0;
 

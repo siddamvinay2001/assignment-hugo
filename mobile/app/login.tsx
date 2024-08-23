@@ -16,15 +16,11 @@ import { Avatar } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Login() {
-  const { profiles } = useProfileStore();
+  const { profiles, setCurrentProfile } = useProfileStore();
   const { step } = useUserStore();
-  const router = useRouter();
-  const { authenticated } = useSession();
-  console.log("is authenticated", authenticated);
-  if (authenticated) {
-    router.replace("/");
-  }
+  const { setAuthenticated } = useSession();
 
+  const router = useRouter();
   const randomColor = () => {
     const colors = ["red", "yellow", "green", "pink"];
     return colors[Math.floor(Math.random() * colors.length)];
@@ -52,7 +48,19 @@ export default function Login() {
         />
         <View style={styles.profilesRow}>
           {profiles.map((profile, index) => (
-            <TouchableOpacity key={index} style={styles.profileItem}>
+            <TouchableOpacity
+              key={index}
+              style={styles.profileItem}
+              onPress={() => {
+                if (profile.isProtected) {
+                  setCurrentProfile(profile);
+                  router.push("/confirm-password");
+                } else {
+                  setCurrentProfile(profile);
+                  setAuthenticated(true);
+                }
+              }}
+            >
               <Avatar.Text
                 size={60}
                 label={profile.name.charAt(0).toUpperCase()}

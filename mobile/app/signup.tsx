@@ -20,10 +20,7 @@ import { PRIMARY_COLOR } from "@/constants/Style.constants";
 export default function CreateAccount() {
   const { step, clearForm, clearPasswordForm, setStep } = useUserStore();
   const router = useRouter();
-  const { authenticated } = useSession();
-  if (authenticated) {
-    router.replace("/");
-  }
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <SafeAreaView style={styles.mainContainer}>

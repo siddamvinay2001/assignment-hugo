@@ -5,12 +5,18 @@ import { ProfileList, UserType } from "@/types/Profile.types";
 export const useProfileStore = create<ProfileList>((set) => ({
   profiles: [],
   currentProfile: null,
-  addProfile: (profile) =>
+  addProfile: async (profile) => {
     set((state) => {
       const updatedProfiles = [...state.profiles, profile];
-      AsyncStorage.setItem("profiles", JSON.stringify(updatedProfiles));
+      // Await the AsyncStorage.setItem to ensure it completes
+      AsyncStorage.setItem("profiles", JSON.stringify(updatedProfiles)).catch(
+        (error) => {
+          console.error("Failed to save profiles to AsyncStorage", error);
+        }
+      );
       return { profiles: updatedProfiles };
-    }),
+    });
+  },
   setCurrentProfile: (profile) => set({ currentProfile: profile }),
   clearCurrentProfile: () => set({ currentProfile: null }),
   loadProfiles: async () => {

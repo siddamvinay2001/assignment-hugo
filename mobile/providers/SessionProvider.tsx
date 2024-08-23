@@ -1,6 +1,7 @@
 import { useProfileStore, useUserStore } from "@/store/UserStore";
 import { SessionContextType } from "@/types/Session.types";
 import { useRouter } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 import {
   createContext,
   ReactNode,
@@ -15,13 +16,16 @@ export const SessionProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const router = useRouter();
+  const navigation = useNavigation();
   const [authenticated, setIsAuthenticated] = useState<boolean>(false);
   const { profiles, loadProfiles, clearCurrentProfile } = useProfileStore();
   const { clearForm } = useUserStore();
   useEffect(() => {
     if (authenticated) {
-      console.log("Came here");
       clearForm();
+      if (navigation.canGoBack()) {
+        router.dismissAll();
+      }
       router.replace("/");
     } else {
       const initialize = async () => {
@@ -30,8 +34,14 @@ export const SessionProvider: React.FC<{ children: ReactNode }> = ({
         await loadProfiles();
         const updatedProfiles = useProfileStore.getState().profiles;
         if (updatedProfiles.length === 0) {
+          if (navigation.canGoBack()) {
+            router.dismissAll();
+          }
           router.replace("/signup");
         } else {
+          if (navigation.canGoBack()) {
+            router.dismissAll();
+          }
           router.replace("/login");
         }
       };

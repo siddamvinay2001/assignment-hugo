@@ -9,7 +9,7 @@ export interface Profile {
 export interface ProfileList {
     profiles: Profile[];
     currentProfile: Profile | null;
-    addProfile: (profile: Profile) => void;
+    addProfile: (profile: Profile) => Promise<void>;
     loadProfiles: () => Promise<void>;
     setCurrentProfile: (profile: Profile) => void;
     clearCurrentProfile: () => void;
