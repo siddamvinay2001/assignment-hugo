@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   View,
   StyleSheet,
@@ -6,7 +6,7 @@ import {
   Keyboard,
 } from "react-native";
 import { useUserStore } from "@/store/UserStore";
-import { useProfileStore } from "@/store/ProfileStore";
+import { usePasswordStore } from "@/store/PasswordStore";
 import { passwordSchema } from "@/utils/validationSchema";
 import CustomInputBox from "@/components/CustomInputBox";
 import CustomText from "@/components/CustomText";
@@ -15,49 +15,38 @@ import { z } from "zod";
 import { useRouter } from "expo-router";
 import { useSession } from "@/providers/SessionProvider";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useProfileStore } from "@/store/ProfileStore";
 
 export default function CreatePassword() {
   const {
-    password,
-    confirmPassword,
+    passwordArray,
+    confirmPasswordArray,
     errors,
-    setPassword,
-    setConfirmPassword,
+    setPasswordArray,
+    setConfirmPasswordArray,
     setErrors,
-    setStep,
     clearPasswordForm,
-    name,
-    email,
-    nickname,
-    setProtected,
-  } = useUserStore();
+  } = usePasswordStore();
+
   const { setAuthenticated } = useSession();
   const { addProfile, setCurrentProfile } = useProfileStore();
+  const { name, email, nickname, setProtected } = useUserStore();
   const router = useRouter();
-  const { authenticated } = useSession();
-
-  const [passwordArray, setPasswordArray] = useState(Array(4).fill(""));
-  const [confirmPasswordArray, setConfirmPasswordArray] = useState(
-    Array(4).fill("")
-  );
 
   const handlePasswordChange = (index: number, value: string) => {
-    const newPasswordArray = [...passwordArray];
-    newPasswordArray[index] = value;
-    setPasswordArray(newPasswordArray);
-    setPassword(newPasswordArray.join(""));
+    setPasswordArray(index, value);
   };
 
   const handleConfirmPasswordChange = (index: number, value: string) => {
-    const newConfirmPasswordArray = [...confirmPasswordArray];
-    newConfirmPasswordArray[index] = value;
-    setConfirmPasswordArray(newConfirmPasswordArray);
-    setConfirmPassword(newConfirmPasswordArray.join(""));
+    setConfirmPasswordArray(index, value);
   };
 
   const validatePassword = () => {
     try {
-      passwordSchema.parse({ password, confirmPassword });
+      passwordSchema.parse({
+        password: passwordArray.join(""),
+        confirmPassword: confirmPasswordArray.join(""),
+      });
       setErrors({});
       return true;
     } catch (e) {
@@ -75,15 +64,13 @@ export default function CreatePassword() {
   };
 
   const handleFinish = async (secure: boolean) => {
-    if (secure) {
-      if (!validatePassword()) return;
-    }
+    if (secure && !validatePassword()) return;
     setProtected(secure);
     const profile = {
-      name: name,
-      nickname: nickname,
-      email: email,
-      password: secure ? password : "",
+      name,
+      nickname,
+      email,
+      password: secure ? passwordArray.join("") : "",
       isProtected: secure,
     };
     setCurrentProfile(profile);

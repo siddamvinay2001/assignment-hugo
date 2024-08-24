@@ -10,6 +10,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { usePasswordStore } from "@/store/PasswordStore";
 
 const SessionContext = createContext<SessionContextType | null>(null);
 
@@ -20,10 +21,11 @@ export const SessionProvider: React.FC<{ children: ReactNode }> = ({
   const navigation = useNavigation();
   const [authenticated, setIsAuthenticated] = useState<boolean>(false);
   const { profiles, loadProfiles, clearCurrentProfile } = useProfileStore();
-  const { clearForm } = useUserStore();
+  const { clearUserForm } = useUserStore();
+  const { clearPasswordForm } = usePasswordStore();
   useEffect(() => {
     if (authenticated) {
-      clearForm();
+      clearPasswordForm();
       if (navigation.canGoBack()) {
         router.dismissAll();
       }
@@ -31,7 +33,8 @@ export const SessionProvider: React.FC<{ children: ReactNode }> = ({
     } else {
       const initialize = async () => {
         clearCurrentProfile();
-        clearForm();
+        clearUserForm();
+        clearPasswordForm();
         await loadProfiles();
         const updatedProfiles = useProfileStore.getState().profiles;
         if (updatedProfiles.length === 0) {

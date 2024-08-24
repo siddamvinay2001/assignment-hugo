@@ -2,20 +2,18 @@ export interface UserStore {
     name: string;
     nickname: string;
     email: string;
-    password: string;
-    confirmPassword: string;
     checked: boolean;
-    errors: any;
     isProtected: boolean;
-    setProtected: (isProtected: boolean) => void;
-    setStep: (step: UserStep) => void;
+    errors: {
+        name?: string;
+        nickname?: string;
+        email?: string;
+    };
     setName: (name: string) => void;
     setNickname: (nickname: string) => void;
     setEmail: (email: string) => void;
-    setPassword: (password: string) => void;
-    setConfirmPassword: (confirmPassword: string) => void;
-    setChecked: (isChecked: boolean) => void;
-    clearForm: () => void;
-    clearPasswordForm: () => void;
-    setErros: any;
+    setChecked: (checked: boolean) => void;
+    setErrors: (errors: { [key: string]: string }) => void;
+    setProtected: (isProtected: boolean) => void;
+    clearUserForm: () => void;
 }

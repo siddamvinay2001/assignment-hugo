@@ -8,23 +8,17 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { useUserStore } from "@/store/UserStore";
-import EmptySignup from "@/components/EmptySignup";
-import UserForm from "@/components/UserForm";
-import PasswordForm from "@/components/PasswordForm";
 import { IconButton, Button } from "react-native-paper";
-import { useSession } from "@/providers/SessionProvider";
 import CustomText from "@/components/CustomText";
 import { PRIMARY_COLOR } from "@/constants/Style.constants";
 
 export default function CreateAccount() {
-  const { step, clearForm, clearPasswordForm, setStep } = useUserStore();
   const router = useRouter();
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <SafeAreaView style={styles.mainContainer}>
-        <View>
+        <View style={styles.header}>
           <Image
             style={styles.heroImage}
             source={require("@/assets/images/react-logo.png")}
@@ -35,7 +29,7 @@ export default function CreateAccount() {
             type="secondary"
           />
         </View>
-        <View>
+        <View style={styles.content}>
           <CustomText
             variant="bodyLarge"
             style={styles.heroText}
@@ -69,15 +63,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
+  header: {
+    alignItems: "center",
+    marginBottom: 30,
+  },
   heroImage: {
     width: 200,
     height: 200,
-    marginBottom: 30,
+    marginBottom: 20,
   },
   heroText: {
     marginBottom: 30,
+    textAlign: "center",
+  },
+  content: {
+    alignItems: "center",
+    width: "100%",
   },
   footerText: {
     textAlign: "center",
+    width: "100%",
   },
 });

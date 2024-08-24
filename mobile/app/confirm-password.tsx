@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   View,
   StyleSheet,
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
-import { useUserStore } from "@/store/UserStore";
+import { usePasswordStore } from "@/store/PasswordStore";
 import { useProfileStore } from "@/store/ProfileStore";
 import CustomInputBox from "@/components/CustomInputBox";
 import CustomText from "@/components/CustomText";
@@ -15,28 +15,30 @@ import { useRouter } from "expo-router";
 import { useSession } from "@/providers/SessionProvider";
 
 export default function ConfirmPassword() {
-  const { confirmPassword, errors, setConfirmPassword, setErrors, clearForm } =
-    useUserStore();
+  const {
+    confirmPassword,
+    confirmPasswordArray,
+    errors,
+    setConfirmPassword,
+    setConfirmPasswordArray,
+    setErrors,
+    clearPasswordForm,
+  } = usePasswordStore();
+
   const { profiles, currentProfile, clearCurrentProfile, setCurrentProfile } =
     useProfileStore();
   const { setAuthenticated } = useSession();
   const router = useRouter();
 
-  const [confirmPasswordArray, setConfirmPasswordArray] = useState(
-    Array(4).fill("")
-  );
-
   const handleConfirmPasswordChange = (index: number, value: string) => {
-    const newConfirmPasswordArray = [...confirmPasswordArray];
-    newConfirmPasswordArray[index] = value;
-    setConfirmPasswordArray(newConfirmPasswordArray);
-    setConfirmPassword(newConfirmPasswordArray.join(""));
+    setConfirmPasswordArray(index, value);
   };
 
   const handleConfirmPassword = () => {
     if (currentProfile?.password === confirmPassword) {
       setCurrentProfile(currentProfile);
       setAuthenticated(true);
+      clearPasswordForm(); // Clear password form after successful authentication
     } else {
       setErrors({ confirmPassword: "Passwords do not match" });
     }
@@ -49,7 +51,7 @@ export default function ConfirmPassword() {
           icon="arrow-left"
           size={24}
           onPress={() => {
-            clearForm();
+            clearPasswordForm();
             clearCurrentProfile();
             router.back();
           }}
