@@ -1,4 +1,5 @@
-import { useProfileStore, useUserStore } from "@/store/UserStore";
+import { useUserStore } from "@/store/UserStore";
+import { useProfileStore } from "@/store/ProfileStore";
 import { SessionContextType } from "@/types/Session.types";
 import { useRouter } from "expo-router";
 import { useNavigation } from "@react-navigation/native";

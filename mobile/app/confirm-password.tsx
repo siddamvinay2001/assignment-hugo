@@ -6,7 +6,7 @@ import {
   Keyboard,
 } from "react-native";
 import { useUserStore } from "@/store/UserStore";
-import { useProfileStore } from "@/store/UserStore";
+import { useProfileStore } from "@/store/ProfileStore";
 import CustomInputBox from "@/components/CustomInputBox";
 import CustomText from "@/components/CustomText";
 import { Button, IconButton } from "react-native-paper";

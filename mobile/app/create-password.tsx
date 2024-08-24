@@ -6,7 +6,7 @@ import {
   Keyboard,
 } from "react-native";
 import { useUserStore } from "@/store/UserStore";
-import { useProfileStore } from "@/store/UserStore";
+import { useProfileStore } from "@/store/ProfileStore";
 import { passwordSchema } from "@/utils/validationSchema";
 import CustomInputBox from "@/components/CustomInputBox";
 import CustomText from "@/components/CustomText";
@@ -59,6 +59,7 @@ export default function CreatePassword() {
     try {
       passwordSchema.parse({ password, confirmPassword });
       setErrors({});
+      return true;
     } catch (e) {
       if (e instanceof z.ZodError) {
         const errorMessages: { [key: string]: string } = {};
@@ -69,11 +70,14 @@ export default function CreatePassword() {
         });
         setErrors(errorMessages);
       }
+      return false;
     }
   };
 
   const handleFinish = async (secure: boolean) => {
-    validatePassword();
+    if (secure) {
+      if (!validatePassword()) return;
+    }
     setProtected(secure);
     const profile = {
       name: name,

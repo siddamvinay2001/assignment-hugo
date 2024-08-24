@@ -2,7 +2,8 @@ import CustomText from "@/components/CustomText";
 import LoginView from "@/components/LoginView";
 import { PRIMARY_COLOR } from "@/constants/Style.constants";
 import { useSession } from "@/providers/SessionProvider";
-import { useProfileStore, useUserStore } from "@/store/UserStore";
+import { useUserStore } from "@/store/UserStore";
+import { useProfileStore } from "@/store/ProfileStore";
 import { useRouter } from "expo-router";
 import {
   View,
