@@ -21,3 +21,10 @@ export const passwordSchema = z
         message: "Passwords do not match",
         path: ["confirmPassword"],
     });
+
+
+export const vehicleSchema = z.object({
+    name: z.string().min(1, "Vehicle name is required"),
+    type: z.union([z.literal(2), z.literal(3), z.literal(4)]),
+    engineCC: z.number().min(50, "Engine CC should be at least 50"),
+});

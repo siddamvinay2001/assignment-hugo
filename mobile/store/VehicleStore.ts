@@ -54,3 +54,21 @@ export const useVehicleStore = create<VehicleStore>((set) => ({
     }
   },
 }));
+
+export const useVehicleFormStore = create<VehicleFormStore>((set) => ({
+  name: "",
+  type: 2 as VehicleType,
+  engineCC: 0,
+  errors: {},
+  setName: (name) => set((state) => ({ name, })),
+  setType: (type) => set((state) => ({ type, })),
+  setEngineCC: (engineCC) => set((state) => ({ engineCC, })),
+  setErrors: (errors) => set({ errors }),
+  clearVehicleForm: () =>
+    set({
+      name: "",
+      type: 2 as VehicleType,
+      engineCC: 0,
+      errors: {},
+    }),
+}));

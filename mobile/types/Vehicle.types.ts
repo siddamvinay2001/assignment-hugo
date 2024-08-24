@@ -1,4 +1,4 @@
-type VehicleType = 2 | 3 | 4;
+export type VehicleType = 2 | 3 | 4;
 
 export interface Vehicle {
     id: number;
@@ -17,11 +17,14 @@ export interface VehicleStore {
 }
 
 export interface VehicleFormStore {
-    vehicle: Vehicle;
-    name: String;
+    name: string;
     type: VehicleType;
     engineCC: number;
-    setName: (name: String) => void;
+    errors: Record<string, string>;
+    setErrors: (errors: { [key: string]: string }) => void;
+    setName: (name: string) => void;
     setType: (type: VehicleType) => void;
     setEngineCC: (engineCC: number) => void;
+    validateForm: () => boolean;
+    clearVehicleForm: () => void;
 }

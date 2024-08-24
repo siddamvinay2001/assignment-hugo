@@ -1,10 +1,12 @@
 import CustomText from "@/components/CustomText";
+import { useRouter } from "expo-router";
 import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { black } from "react-native-paper/lib/typescript/styles/themes/v2/colors";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Vehicle() {
+  const router = useRouter();
   return (
     <SafeAreaView style={styles.container}>
       <CustomText
@@ -23,7 +25,12 @@ export default function Vehicle() {
         <Text style={styles.subtitle}>
           Add a vehicle to start tracking its refuelling & performance
         </Text>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => {
+            router.push("/add-vehicle");
+          }}
+        >
           <Text style={styles.buttonText}>Add Vehicle →</Text>
         </TouchableOpacity>
       </View>
