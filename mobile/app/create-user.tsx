@@ -26,7 +26,7 @@ export default function CreateUser() {
     setEmail,
     setChecked,
     setErrors,
-    clearForm,
+    clearUserForm,
   } = useUserStore();
   const router = useRouter();
   const { authenticated } = useSession();
@@ -64,7 +64,7 @@ export default function CreateUser() {
           icon="arrow-left"
           size={24}
           onPress={() => {
-            clearForm();
+            clearUserForm();
             router.back();
           }}
         />

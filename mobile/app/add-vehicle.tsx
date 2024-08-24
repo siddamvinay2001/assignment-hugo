@@ -13,10 +13,19 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { TextInput, Button, IconButton } from "react-native-paper";
 import { useRouter } from "expo-router";
 import CustomText from "@/components/CustomText";
-import { useVehicleFormStore } from "@/store/VehicleStore";
+import { useVehicleFormStore, useVehicleStore } from "@/store/VehicleStore";
 import { z } from "zod";
 import { debounce } from "lodash";
 import { vehicleSchema } from "@/utils/validationSchema";
+import { Dropdown } from "react-native-element-dropdown";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import { useProfileStore } from "@/store/ProfileStore";
+
+const vehicleTypes = [
+  { label: "2 Wheeler", value: 2 },
+  { label: "3 Wheeler", value: 3 },
+  { label: "4 Wheeler", value: 4 },
+];
 
 export default function AddVehicle() {
   const {
@@ -30,6 +39,8 @@ export default function AddVehicle() {
     setErrors,
     clearVehicleForm,
   } = useVehicleFormStore();
+  const { currentProfile } = useProfileStore();
+  const { addVehicle } = useVehicleStore();
   const router = useRouter();
 
   const validate = useCallback(
@@ -58,9 +69,21 @@ export default function AddVehicle() {
 
   const isFormValid = !Object.keys(errors).length;
 
-  const handleAddVehicle = () => {
+  const handleAddVehicle = async () => {
     if (isFormValid) {
-      router.push("/success-page");
+      try {
+        console.log(currentProfile);
+        const newVehicle = {
+          name,
+          profileId: currentProfile?.id,
+          type,
+          engineCC,
+        };
+        await addVehicle(newVehicle);
+        router.replace("/success");
+      } catch (err) {
+        console.log("Failed to add a vehicle");
+      }
     }
   };
 
@@ -135,21 +158,24 @@ export default function AddVehicle() {
                 <CustomText
                   type="primary"
                   variant="titleLarge"
-                  content="2,3,4 Wheeler?"
+                  content="Vehicle Type"
                   required
                   style={styles.inputLabel}
                 />
-                <TextInput
-                  mode="outlined"
-                  outlineColor={errors.type ? "#eb2917" : "white"}
-                  activeOutlineColor={errors.type ? "#eb2917" : "white"}
+                <Dropdown
+                  style={[styles.dropdown, errors.type && styles.errorInput]}
+                  placeholderStyle={styles.placeholderStyle}
+                  selectedTextStyle={styles.selectedTextStyle}
+                  iconStyle={styles.iconStyle}
+                  containerStyle={styles.dropdownContainer}
+                  data={vehicleTypes}
+                  labelField="label"
+                  valueField="value"
+                  placeholder="Select vehicle type"
                   value={type}
-                  onChangeText={(text) => {
-                    setType(Number(text));
+                  onChange={(item) => {
+                    setType(item.value);
                   }}
-                  textColor="#193063"
-                  placeholder="Enter (2,3,4)"
-                  style={[styles.textInput, errors.type && styles.errorInput]}
                 />
                 {errors.type && (
                   <CustomText
@@ -175,6 +201,7 @@ export default function AddVehicle() {
                   value={engineCC}
                   onChangeText={(text) => {
                     setEngineCC(Number(text));
+                    validate(); // Validate immediately on change
                   }}
                   textColor="#193063"
                   placeholder="Enter engine CC"
@@ -274,6 +301,17 @@ const styles = StyleSheet.create({
   textInput: {
     backgroundColor: "white",
   },
+  dropdown: {
+    height: 50,
+    borderColor: "gray",
+    borderWidth: 0.5,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    backgroundColor: "white", // Set background color to white
+  },
+  dropdownContainer: {
+    backgroundColor: "white", // Ensure the container background is also white
+  },
   errorInput: {
     borderColor: "#eb2917",
   },
@@ -293,5 +331,20 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     width: "100%",
+  },
+  placeholderStyle: {
+    fontSize: 16,
+    color: "black", // Adjust placeholder text color if needed
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+    color: "black", // Adjust selected text color if needed
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  icon: {
+    marginRight: 10,
   },
 });

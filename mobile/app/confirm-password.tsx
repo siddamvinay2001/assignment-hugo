@@ -38,7 +38,7 @@ export default function ConfirmPassword() {
     if (currentProfile?.password === confirmPassword) {
       setCurrentProfile(currentProfile);
       setAuthenticated(true);
-      clearPasswordForm(); // Clear password form after successful authentication
+      clearPasswordForm();
     } else {
       setErrors({ confirmPassword: "Passwords do not match" });
     }

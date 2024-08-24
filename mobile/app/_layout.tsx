@@ -15,6 +15,7 @@ export default function RootLayout() {
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="add-vehicle" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="success" options={{ headerShown: false }} />
       </Stack>
     </SessionProvider>
   );
