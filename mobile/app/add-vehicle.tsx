@@ -334,11 +334,11 @@ const styles = StyleSheet.create({
   },
   placeholderStyle: {
     fontSize: 16,
-    color: "black", // Adjust placeholder text color if needed
+    color: "black",
   },
   selectedTextStyle: {
     fontSize: 16,
-    color: "black", // Adjust selected text color if needed
+    color: "black",
   },
   iconStyle: {
     width: 20,

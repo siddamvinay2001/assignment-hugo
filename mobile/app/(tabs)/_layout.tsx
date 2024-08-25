@@ -5,6 +5,7 @@ export default function TabLayout() {
     <Tabs>
       <Tabs.Screen name="home" options={{ headerShown: false }} />
       <Tabs.Screen name="refueling" options={{ headerShown: false }} />
+      <Tabs.Screen name="performance" options={{ headerShown: false }} />
       <Tabs.Screen name="vehicles" options={{ headerShown: false }} />
     </Tabs>
   );

@@ -16,18 +16,18 @@ import VehicleCard from "@/components/VehicleCard";
 
 export default function Vehicle() {
   const router = useRouter();
-  const { vehicles, loadCurrentVehicles } = useVehicleStore();
+  const { vehicles, currentVehicles, loadCurrentVehicles, loadVehicles } =
+    useVehicleStore();
   const { currentProfile } = useProfileStore();
 
   useEffect(() => {
+    console.log("Initialise function called");
     const initialize = async () => {
       if (currentProfile?.id) {
-        console.log("Profile ID exists, loading vehicles...", currentProfile);
         try {
           await loadCurrentVehicles(currentProfile.id);
-          console.log("Vehicles loaded successfully:", vehicles);
         } catch (error) {
-          console.error("Error loading vehicles:", error);
+          console.error("Error loading current vehicles:", error);
         }
       } else {
         console.log("No profile ID found, skipping vehicle load.");
@@ -35,7 +35,7 @@ export default function Vehicle() {
     };
 
     initialize();
-  }, [currentProfile]);
+  }, [currentProfile, vehicles]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -48,7 +48,7 @@ export default function Vehicle() {
         />
       </View>
 
-      {vehicles.length === 0 ? (
+      {currentVehicles.length === 0 ? (
         <View style={styles.heroContainer}>
           <View style={styles.imageContainer}>
             <Image
@@ -70,13 +70,13 @@ export default function Vehicle() {
         </View>
       ) : (
         <FlatList
-          data={vehicles}
+          data={currentVehicles}
           renderItem={({ item }) => <VehicleCard vehicle={item} />}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.vehicleList}
         />
       )}
-      {vehicles.length != 0 && (
+      {currentVehicles.length != 0 && (
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => router.push("/add-vehicle")}
