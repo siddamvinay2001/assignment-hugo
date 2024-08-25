@@ -1,20 +1,15 @@
 import { create } from "zustand";
-import { RefuelFormStore } from "@/types/Refuel.types";
-
-const REFUELS_KEY = "refuels";
-
-import { create } from "zustand";
+import { RefuelFormStore, RefuelStore } from "@/types/Refuel.types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { RefuelStore } from "@/types/Refuel.types"; // Adjust import path as needed
-
 const REFUELS_KEY = "refuels";
 
 export const useRefuelStore = create<RefuelStore>((set) => ({
     refuels: [],
-
+    selectedVehicle: null,
+    setSelectedVehicle: (vehicleId) => set({ selectedVehicle: vehicleId }),
     addRefuel: async (refuel) => {
         try {
-            const { getNextRefuelId } = useAutoIncrementStore.getState(); // Ensure this store is correctly imported and used
+            const { getNextRefuelId } = useAutoIncrementStore.getState();
             const nextRefuelId = await getNextRefuelId();
             const newRefuel = { ...refuel, id: nextRefuelId };
             const refuelsString = await AsyncStorage.getItem(REFUELS_KEY);
@@ -26,7 +21,6 @@ export const useRefuelStore = create<RefuelStore>((set) => ({
             console.error('Failed to add refuel:', error);
         }
     },
-
     removeRefuel: async (refuelId) => {
         try {
             const refuelsString = await AsyncStorage.getItem(REFUELS_KEY);
@@ -38,7 +32,6 @@ export const useRefuelStore = create<RefuelStore>((set) => ({
             console.error('Failed to remove refuel:', error);
         }
     },
-
     loadRefuels: async () => {
         try {
             const refuelsString = await AsyncStorage.getItem(REFUELS_KEY);
@@ -48,7 +41,6 @@ export const useRefuelStore = create<RefuelStore>((set) => ({
             console.error('Failed to load refuels:', error);
         }
     },
-
     loadVehicleRefuels: async (vehicleId) => {
         try {
             const refuelsString = await AsyncStorage.getItem(REFUELS_KEY);
@@ -95,7 +87,6 @@ export const useRefuelFormStore = create<RefuelFormStore>((set, get) => ({
         const errors: Record<string, string> = {};
         const { fuelAdded, cost, date, odometerStart, odometerEnd } = get();
 
-        // Validate form fields
         if (!fuelAdded || fuelAdded <= 0) errors.fuelAdded = "Fuel added is required and must be greater than 0";
         if (!cost || cost <= 0) errors.cost = "Cost is required and must be greater than 0";
         if (!date) errors.date = "Date is required";

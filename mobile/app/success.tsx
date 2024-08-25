@@ -30,6 +30,7 @@ export default function Success() {
           style={styles.button}
           onPress={() => {
             clearVehicleForm();
+            
             router.replace('/');
           }}
         >

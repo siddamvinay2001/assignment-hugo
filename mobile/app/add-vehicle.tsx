@@ -72,7 +72,6 @@ export default function AddVehicle() {
   const handleAddVehicle = async () => {
     if (isFormValid) {
       try {
-        console.log(currentProfile);
         const newVehicle = {
           name,
           profileId: currentProfile?.id,
@@ -82,7 +81,7 @@ export default function AddVehicle() {
         await addVehicle(newVehicle);
         router.replace("/success");
       } catch (err) {
-        console.log("Failed to add a vehicle");
+        console.log("Failed to add a vehicle", err);
       }
     }
   };
@@ -139,7 +138,7 @@ export default function AddVehicle() {
                   value={name}
                   onChangeText={(text) => {
                     setName(text);
-                    validate(); // Validate immediately on change
+                    validate();
                   }}
                   textColor="#193063"
                   placeholder="Enter vehicle name"

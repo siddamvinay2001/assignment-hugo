@@ -1,22 +1,26 @@
+import { Vehicle } from "./Vehicle.types";
+
 export interface Refuel {
     id: number;
     vehicleId: number;
     fuelAdded: number;
     cost: number;
     date: string;
-    odometerStart?: number;  // Optional: could be undefined
-    odometerEnd?: number;    // Optional: could be undefined
+    odometerStart?: number;
+    odometerEnd?: number;
 }
 
 export interface RefuelStore {
     refuels: Refuel[];
+    selectedVehicle: Vehicle | null;
     addRefuel: (refuel: Omit<Refuel, 'id'>) => Promise<void>;
     removeRefuel: (refuelId: number) => Promise<void>;
     loadRefuels: () => Promise<void>;
     loadVehicleRefuels: (vehicleId: number) => Promise<void>;
+    setSelectedVehicle: (vehicleId: number) => Promise<void>;
 }
 
-interface RefuelFormStore {
+export interface RefuelFormStore {
     fuelAdded: number;
     cost: number;
     date: string;

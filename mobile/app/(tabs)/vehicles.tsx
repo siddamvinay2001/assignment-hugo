@@ -21,7 +21,6 @@ export default function Vehicle() {
   const { currentProfile } = useProfileStore();
 
   useEffect(() => {
-    console.log("Initialise function called");
     const initialize = async () => {
       if (currentProfile?.id) {
         try {
