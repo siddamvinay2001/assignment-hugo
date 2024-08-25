@@ -34,7 +34,7 @@ export default function Vehicle() {
     };
 
     initialize();
-  }, [currentProfile, vehicles]);
+  }, [currentProfile]);
 
   return (
     <SafeAreaView style={styles.container}>

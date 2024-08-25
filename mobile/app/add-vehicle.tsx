@@ -40,7 +40,7 @@ export default function AddVehicle() {
     clearVehicleForm,
   } = useVehicleFormStore();
   const { currentProfile } = useProfileStore();
-  const { addVehicle } = useVehicleStore();
+  const { addVehicle, loadCurrentVehicles } = useVehicleStore();
   const router = useRouter();
 
   const validate = useCallback(
@@ -79,6 +79,7 @@ export default function AddVehicle() {
           engineCC,
         };
         await addVehicle(newVehicle);
+        await loadCurrentVehicles(currentProfile?.id);
         router.replace("/success");
       } catch (err) {
         console.log("Failed to add a vehicle", err);

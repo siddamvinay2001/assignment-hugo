@@ -24,7 +24,7 @@ export default function Refuel() {
     setSelectedVehicle,
     selectedVehicle,
   } = useRefuelStore();
-  const { currentVehicles, loadCurrentVehicles } = useVehicleStore();
+  const { currentVehicles, loadCurrentVehicles, vehicles } = useVehicleStore();
   const { currentProfile } = useProfileStore();
 
   useEffect(() => {
@@ -41,7 +41,7 @@ export default function Refuel() {
       }
     };
     initialize();
-  }, [currentProfile, currentVehicles, selectedVehicle]);
+  }, [currentProfile, vehicles, selectedVehicle]);
 
   return (
     <SafeAreaView style={styles.container}>
