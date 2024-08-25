@@ -1,18 +1,16 @@
 import React, { useState } from "react";
-import { View, StyleSheet, Text } from "react-native";
-import { Menu, IconButton, Divider } from "react-native-paper";
+import { View, StyleSheet, Text, Image } from "react-native";
 import { useRouter } from "expo-router";
 import { useRefuelStore } from "@/store/RefuelStore";
-import CustomText from "./CustomText";
 
-const RefuellingCard = ({ refuelling }) => {
+const RefuelCard = ({ refuel }) => {
   const [visible, setVisible] = useState(false);
-  const { removeRefuelling } = useRefuellingStore();
+  const { removeRefuel } = useRefuelStore();
   const router = useRouter();
 
   const handleDelete = async () => {
     try {
-      await removeRefuelling(refuelling.id);
+      await removeRefuel(refuel.id);
     } catch (error) {
       console.error("Failed to remove refuelling:", error);
     } finally {
@@ -22,33 +20,18 @@ const RefuellingCard = ({ refuelling }) => {
 
   return (
     <View style={styles.card}>
-      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-        <CustomText
-          variant="titleMedium"
-          content={`Fuel: ${refuelling.fuelType}`}
+      <View style={styles.row}>
+        <Image
+          source={require("@/assets/images/icon.png")}
+          style={styles.image}
         />
-        <Menu
-          visible={visible}
-          onDismiss={() => setVisible(false)}
-          anchor={
-            <IconButton
-              icon="dots-vertical"
-              size={24}
-              onPress={() => setVisible(true)}
-            />
-          }
-        >
-          <Menu.Item
-            onPress={() => router.push(`/edit-refuelling/${refuelling.id}`)}
-            title="Edit"
-          />
-          <Divider />
-          <Menu.Item onPress={handleDelete} title="Delete" />
-        </Menu>
+        <View style={styles.detailsContainer}>
+          <Text style={styles.text}>{refuel.date}</Text>
+          <Text style={styles.text}>{`${refuel.fuelAdded} L`}</Text>
+        </View>
       </View>
-      <View style={styles.details}>
-        <CustomText content={`Amount: ${refuelling.amount}`} />
-        <CustomText content={`Date: ${refuelling.date}`} />
+      <View style={styles.costContainer}>
+        <Text style={styles.costText}>{`+$ ${refuel.cost}`}</Text>
       </View>
     </View>
   );
@@ -56,16 +39,40 @@ const RefuellingCard = ({ refuelling }) => {
 
 const styles = StyleSheet.create({
   card: {
-    flexDirection: "column",
+    flexDirection: "row",
     backgroundColor: "#FFFFFF",
+    justifyContent: "space-between",
+    alignItems: "center",
     borderRadius: 10,
     marginBottom: 15,
     padding: 10,
     elevation: 3,
   },
-  details: {
-    marginTop: 8,
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  image: {
+    height: 60,
+    width: 60,
+  },
+  detailsContainer: {
+    marginLeft: 10,
+    justifyContent: "center",
+  },
+  text: {
+    fontSize: 16,
+    textAlign: "center",
+  },
+  costContainer: {
+    justifyContent: "center",
+    alignItems: "flex-end",
+    flex: 1,
+  },
+  costText: {
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 
-export default RefuellingCard;
+export default RefuelCard;

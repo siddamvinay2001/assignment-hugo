@@ -34,9 +34,9 @@ export const refuelSchema = z.object({
     fuelAdded: z.number().positive("Fuel added must be greater than 0"),
     cost: z.number().positive("Cost must be greater than 0"),
     date: z.string().min(1, "Date is required"),
-    odometerStart: z.number().int("Odometer start must be an integer"),
-    odometerEnd: z.number().int("Odometer end must be an integer"),
-}).refine(data => data.odometerEnd >= data.odometerStart, {
+    odometerStart: z.number().positive("Odometer start must be an integer"),
+    odometerEnd: z.number().positive("Odometer end must be an integer"),
+}).refine(data => data.odometerEnd === undefined || data.odometerStart === undefined || data.odometerEnd >= data.odometerStart, {
     message: "Odometer end must be greater than or equal to odometer start",
     path: ["odometerEnd"],
 });

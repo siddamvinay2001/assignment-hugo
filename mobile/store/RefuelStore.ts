@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { RefuelFormStore, RefuelStore } from "@/types/Refuel.types";
+import { useAutoIncrementStore } from "./AutoIncrementStore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 const REFUELS_KEY = "refuels";
 
@@ -19,6 +20,19 @@ export const useRefuelStore = create<RefuelStore>((set) => ({
             await AsyncStorage.setItem(REFUELS_KEY, JSON.stringify(updatedRefuels));
         } catch (error) {
             console.error('Failed to add refuel:', error);
+        }
+    },
+    updateRefuel: async (updatedRefuel) => {
+        try {
+            const refuelsString = await AsyncStorage.getItem(REFUELS_KEY);
+            const allRefuels = refuelsString ? JSON.parse(refuelsString) : [];
+            const updatedRefuels = allRefuels.map(r =>
+                r.id === updatedRefuel.id ? { ...r, ...updatedRefuel } : r
+            );
+            set({ refuels: updatedRefuels });
+            await AsyncStorage.setItem(REFUELS_KEY, JSON.stringify(updatedRefuels));
+        } catch (error) {
+            console.error('Failed to update refuel:', error);
         }
     },
     removeRefuel: async (refuelId) => {
@@ -57,30 +71,16 @@ export const useRefuelStore = create<RefuelStore>((set) => ({
 export const useRefuelFormStore = create<RefuelFormStore>((set, get) => ({
     fuelAdded: 0,
     cost: 0,
-    date: new Date().toISOString(),
+    date: new Date(),
     odometerStart: undefined,
     odometerEnd: undefined,
     errors: {},
 
-    setFuelAdded: (fuel) => set({ fuelAdded: parseFloat(fuel) || 0 }),
-    setCost: (cost) => set({ cost: parseFloat(cost) || 0 }),
+    setFuelAdded: (fuel) => set({ fuelAdded: fuel }),
+    setCost: (cost) => set({ cost }),
     setDate: (date) => set({ date }),
-    setOdometerStart: (start) => {
-        const { odometerEnd } = get();
-        set({ odometerStart: parseInt(start) || undefined });
-        if (odometerEnd !== undefined && start) {
-            const newMileage = odometerEnd - parseInt(start);
-            set({ mileage: newMileage });
-        }
-    },
-    setOdometerEnd: (end) => {
-        const { odometerStart } = get();
-        set({ odometerEnd: parseInt(end) || undefined });
-        if (odometerStart !== undefined && end) {
-            const newMileage = parseInt(end) - odometerStart;
-            set({ mileage: newMileage });
-        }
-    },
+    setOdometerStart: (start) => set({ odometerStart: start }),
+    setOdometerEnd: (end) => set({ odometerEnd: end }),
     setErrors: (errors) => set({ errors }),
 
     validateForm: () => {
@@ -104,7 +104,7 @@ export const useRefuelFormStore = create<RefuelFormStore>((set, get) => ({
     clearRefuelForm: () => set({
         fuelAdded: 0,
         cost: 0,
-        date: new Date().toISOString(),
+        date: new Date(),
         odometerStart: undefined,
         odometerEnd: undefined,
         errors: {},

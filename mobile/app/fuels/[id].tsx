@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -7,32 +7,20 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Image,
+  TouchableOpacity,
+  Text,
+  TextInput,
+  SafeAreaView,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { TextInput, Button, IconButton } from "react-native-paper";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import CustomText from "@/components/CustomText";
 import { useRefuelFormStore, useRefuelStore } from "@/store/RefuelStore";
 import { z } from "zod";
 import { debounce } from "lodash";
-import { Dropdown } from "react-native-element-dropdown";
-import AntDesign from "@expo/vector-icons/AntDesign";
 import { useProfileStore } from "@/store/ProfileStore";
-
-// Define the Zod schema for validation
-const refuelSchema = z
-  .object({
-    fuelAdded: z.number().positive("Fuel added must be greater than 0"),
-    cost: z.number().positive("Cost must be greater than 0"),
-    date: z.string().min(1, "Date is required"), // Assuming date is a string in ISO format
-    odometerStart: z.number().int("Odometer start must be an integer"),
-    odometerEnd: z.number().int("Odometer end must be an integer"),
-  })
-  .refine((data) => data.odometerEnd >= data.odometerStart, {
-    message: "Odometer end must be greater than or equal to odometer start",
-    path: ["odometerEnd"],
-  });
+import { Button, IconButton } from "react-native-paper";
+import { refuelSchema } from "@/utils/validationSchema";
 
 export default function AddRefuel() {
   const {
@@ -51,9 +39,20 @@ export default function AddRefuel() {
     clearRefuelForm,
   } = useRefuelFormStore();
   const { currentProfile } = useProfileStore();
-  const { addRefuel, removeRefuel } = useRefuelStore();
+  const {
+    addRefuel,
+    removeRefuel,
+    loadVehicleRefuels,
+    updateRefuel,
+    selectedVehicle,
+  } = useRefuelStore();
   const router = useRouter();
-  const { id } = useLocalSearchParams(); // Fetch the id from the route parameters
+  const { id } = useLocalSearchParams();
+  console.log(selectedVehicle);
+
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [mode, setMode] = useState<"date" | "time">("date");
+  const [selectedDate, setSelectedDate] = useState(new Date(date));
 
   const validate = useCallback(
     debounce(() => {
@@ -87,7 +86,6 @@ export default function AddRefuel() {
 
   useEffect(() => {
     if (id && id !== "-1") {
-      // Load existing refuel data if editing
       const loadRefuel = async () => {
         const refuel = await useRefuelStore
           .getState()
@@ -115,15 +113,15 @@ export default function AddRefuel() {
           date,
           odometerStart,
           odometerEnd,
-          vehicleId: currentProfile?.id, // Assuming currentProfile contains the vehicle ID
+          vehicleId: Number(selectedVehicle),
         };
         if (id === "-1") {
           await addRefuel(newRefuel);
+          await loadVehicleRefuels(selectedVehicle);
         } else {
-          // Update existing refuel logic here
-          // await updateRefuel(id, newRefuel); // Implement updateRefuel if necessary
+          await updateRefuel(Number(id));
         }
-        router.replace("/success");
+        router.replace("/");
       } catch (err) {
         console.log("Failed to add refuel", err);
       }
@@ -146,6 +144,19 @@ export default function AddRefuel() {
     router.back();
   };
 
+  const onDateChange = (event, date) => {
+    setShowDatePicker(false);
+    if (date !== undefined) {
+      setSelectedDate(date);
+      setDate(date.toISOString().split("T")[0]); // Format date as YYYY-MM-DD
+    }
+  };
+
+  const showDatePickerModal = () => {
+    setMode("date");
+    setShowDatePicker(true);
+  };
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView
@@ -158,25 +169,17 @@ export default function AddRefuel() {
             keyboardShouldPersistTaps="handled"
           >
             <View style={styles.headerContainer}>
-              <IconButton
-                icon="arrow-left"
-                size={24}
-                onPress={handleCancel}
-                style={styles.iconButton}
-              />
-              {id && id !== "-1" && (
-                <IconButton
-                  icon="delete"
-                  size={24}
-                  onPress={handleDelete}
-                  style={styles.deleteButton}
-                />
-              )}
               <CustomText
                 type="primary"
                 variant="displaySmall"
                 content={id === "-1" ? "Add Refuel" : "Edit Refuel"}
                 style={styles.titleText}
+              />
+              <IconButton
+                icon="arrow-left"
+                size={24}
+                onPress={handleCancel}
+                style={{ width: "100%", alignItems: "flex-start" }}
               />
             </View>
 
@@ -195,8 +198,7 @@ export default function AddRefuel() {
                   activeOutlineColor={errors.fuelAdded ? "#eb2917" : "white"}
                   value={fuelAdded}
                   onChangeText={(text) => {
-                    setFuelAdded(text);
-                    validate(); // Validate immediately on change
+                    setFuelAdded(Number(text));
                   }}
                   textColor="#193063"
                   placeholder="Enter fuel added"
@@ -229,8 +231,7 @@ export default function AddRefuel() {
                   activeOutlineColor={errors.cost ? "#eb2917" : "white"}
                   value={cost}
                   onChangeText={(text) => {
-                    setCost(text);
-                    validate(); // Validate immediately on change
+                    setCost(Number(text));
                   }}
                   textColor="#193063"
                   placeholder="Enter cost"
@@ -254,19 +255,17 @@ export default function AddRefuel() {
                   required
                   style={styles.inputLabel}
                 />
-                <TextInput
-                  mode="outlined"
-                  outlineColor={errors.date ? "#eb2917" : "white"}
-                  activeOutlineColor={errors.date ? "#eb2917" : "white"}
-                  value={date}
-                  onChangeText={(text) => {
-                    setDate(text);
-                    validate(); // Validate immediately on change
-                  }}
-                  textColor="#193063"
-                  placeholder="Enter date (YYYY-MM-DD)"
-                  style={[styles.textInput, errors.date && styles.errorInput]}
-                />
+                <TouchableOpacity onPress={showDatePickerModal}>
+                  <TextInput
+                    mode="outlined"
+                    outlineColor={errors.date ? "#eb2917" : "white"}
+                    activeOutlineColor={errors.date ? "#eb2917" : "white"}
+                    value={date}
+                    editable={false}
+                    placeholder="Select date"
+                    style={[styles.textInput, errors.date && styles.errorInput]}
+                  />
+                </TouchableOpacity>
                 {errors.date && (
                   <CustomText
                     type="secondary"
@@ -274,8 +273,16 @@ export default function AddRefuel() {
                     style={styles.errorText}
                   />
                 )}
+                {showDatePicker && (
+                  <DateTimePicker
+                    value={selectedDate}
+                    mode={mode}
+                    display="default"
+                    onChange={onDateChange}
+                    testID="dateTimePicker"
+                  />
+                )}
               </View>
-
               <View style={styles.inputContainer}>
                 <CustomText
                   type="primary"
@@ -292,8 +299,7 @@ export default function AddRefuel() {
                   }
                   value={odometerStart}
                   onChangeText={(text) => {
-                    setOdometerStart(text);
-                    validate(); // Validate immediately on change
+                    setOdometerStart(Number(text));
                   }}
                   textColor="#193063"
                   placeholder="Enter odometer start"
@@ -303,6 +309,7 @@ export default function AddRefuel() {
                     errors.odometerStart && styles.errorInput,
                   ]}
                 />
+
                 {errors.odometerStart && (
                   <CustomText
                     type="secondary"
@@ -326,8 +333,7 @@ export default function AddRefuel() {
                   activeOutlineColor={errors.odometerEnd ? "#eb2917" : "white"}
                   value={odometerEnd}
                   onChangeText={(text) => {
-                    setOdometerEnd(text);
-                    validate(); // Validate immediately on change
+                    setOdometerEnd(Number(text));
                   }}
                   textColor="#193063"
                   placeholder="Enter odometer end"
@@ -346,7 +352,8 @@ export default function AddRefuel() {
                 )}
               </View>
             </View>
-
+          </ScrollView>
+          <View style={styles.buttonContainer}>
             <Button
               mode="contained"
               onPress={handleAddRefuel}
@@ -355,7 +362,25 @@ export default function AddRefuel() {
             >
               {id === "-1" ? "Add Refuel" : "Update Refuel"}
             </Button>
-          </ScrollView>
+            {id !== "-1" && (
+              <Button
+                mode="contained"
+                onPress={handleDelete}
+                style={styles.deleteButton}
+              >
+                Delete Refuel
+              </Button>
+            )}
+            <Button
+              mode="contained"
+              onPress={() => {
+                clearRefuelForm();
+                router.back();
+              }}
+            >
+              Cancel Refuel
+            </Button>
+          </View>
         </SafeAreaView>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
@@ -368,43 +393,39 @@ const styles = StyleSheet.create({
   },
   mainContainer: {
     flex: 1,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#F6F6EC",
+    paddingHorizontal: 30,
+    paddingVertical: 30,
   },
   scrollContainer: {
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingTop: 16,
   },
   headerContainer: {
-    flexDirection: "row",
+    flexDirection: "column",
     alignItems: "center",
-    marginBottom: 20,
-  },
-  iconButton: {
-    marginRight: 10,
-  },
-  deleteButton: {
-    marginRight: 10,
+    marginBottom: 16,
   },
   titleText: {
     flex: 1,
     textAlign: "center",
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#193063",
   },
   heroSection: {
-    alignItems: "center",
-  },
-  heroImage: {
-    width: 120,
-    height: 120,
     marginBottom: 20,
   },
   inputContainer: {
-    marginBottom: 20,
-    width: "100%",
+    marginBottom: 12,
   },
   inputLabel: {
-    marginBottom: 8,
+    marginBottom: 4,
   },
   textInput: {
     backgroundColor: "white",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
   errorInput: {
     borderColor: "#eb2917",
@@ -413,7 +434,13 @@ const styles = StyleSheet.create({
     color: "#eb2917",
     marginTop: 4,
   },
+  buttonContainer: {
+    padding: 16,
+  },
   submitButton: {
-    marginTop: 20,
+    marginBottom: 8,
+  },
+  deleteButton: {
+    backgroundColor: "#eb2917",
   },
 });

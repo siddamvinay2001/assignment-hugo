@@ -13,7 +13,7 @@ import { useRefuelStore } from "@/store/RefuelStore";
 import { useVehicleStore } from "@/store/VehicleStore";
 import { useProfileStore } from "@/store/ProfileStore";
 import CustomText from "@/components/CustomText";
-import RefuellingCard from "@/components/RefuelCard";
+import RefuelCard from "@/components/RefuelCard";
 
 export default function Refuel() {
   const router = useRouter();
@@ -28,11 +28,19 @@ export default function Refuel() {
   const { currentProfile } = useProfileStore();
 
   useEffect(() => {
+    const init = async () => {
+      await loadCurrentVehicles(currentProfile?.id);
+    };
+    init();
+  }, []);
+
+  useEffect(() => {
     const initialize = async () => {
-      if (currentProfile?.id && selectedVehicle === null) {
-        await loadCurrentVehicles(currentProfile.id);
+      if (selectedVehicle === null) {
+        console.log("intiated");
         if (currentVehicles.length > 0) {
           const initialVehicleId = currentVehicles[0].id;
+          console.log("Inital Vehicle Id", initialVehicleId);
           setSelectedVehicle(initialVehicleId);
           await loadVehicleRefuels(initialVehicleId);
         }
@@ -41,8 +49,9 @@ export default function Refuel() {
       }
     };
     initialize();
-  }, [currentProfile, vehicles, selectedVehicle]);
-
+  }, [currentProfile, currentVehicles, selectedVehicle]);
+  console.log("Refuels in start: ", refuels);
+  console.log("selected Vehicle", selectedVehicle);
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
@@ -97,9 +106,9 @@ export default function Refuel() {
           ) : (
             <FlatList
               data={refuels}
-              renderItem={({ item }) => <RefuellingCard refuelling={item} />}
+              renderItem={({ item }) => <RefuelCard refuel={item} />}
               keyExtractor={(item) => item.id.toString()}
-              contentContainerStyle={styles.list}
+              contentContainerStyle={styles.vehicleList}
             />
           )}
 

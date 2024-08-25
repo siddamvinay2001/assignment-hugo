@@ -14,6 +14,7 @@ export interface RefuelStore {
     refuels: Refuel[];
     selectedVehicle: Vehicle | null;
     addRefuel: (refuel: Omit<Refuel, 'id'>) => Promise<void>;
+    updateRefuel: (refuelId: number) => Promise<void>;
     removeRefuel: (refuelId: number) => Promise<void>;
     loadRefuels: () => Promise<void>;
     loadVehicleRefuels: (vehicleId: number) => Promise<void>;
