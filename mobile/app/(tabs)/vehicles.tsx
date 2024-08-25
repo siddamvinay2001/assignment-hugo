@@ -12,6 +12,7 @@ import { useRouter } from "expo-router";
 import { useVehicleStore } from "@/store/VehicleStore";
 import { useProfileStore } from "@/store/ProfileStore";
 import CustomText from "@/components/CustomText";
+import VehicleCard from "@/components/VehicleCard";
 
 export default function Vehicle() {
   const router = useRouter();
@@ -36,26 +37,16 @@ export default function Vehicle() {
     initialize();
   }, [currentProfile]);
 
-  const renderVehicleCard = ({ item }) => (
-    <View style={styles.card}>
-      {/* <Image source={{ uri: item.imageUri }} style={styles.vehicleImage} /> */}
-      <View style={styles.vehicleDetails}>
-        <Text style={styles.vehicleName}>{item.name}</Text>
-        <Text style={styles.vehicleType}>{item.type} Wheeler</Text>
-        <Text style={styles.engineCC}>{item.engineCC} CC</Text>
-      </View>
-    </View>
-  );
-  console.log("vehicles", vehicles);
-  console.log("CurrentProfile", currentProfile);
   return (
     <SafeAreaView style={styles.container}>
-      <CustomText
-        type="primary"
-        variant="displaySmall"
-        content="Vehicles"
-        style={{ marginTop: 20 }}
-      />
+      <View style={styles.headerContainer}>
+        <CustomText
+          type="primary"
+          variant="displaySmall"
+          content="Vehicles"
+          style={styles.titleText}
+        />
+      </View>
 
       {vehicles.length === 0 ? (
         <View style={styles.heroContainer}>
@@ -80,18 +71,19 @@ export default function Vehicle() {
       ) : (
         <FlatList
           data={vehicles}
-          renderItem={renderVehicleCard}
+          renderItem={({ item }) => <VehicleCard vehicle={item} />}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.vehicleList}
         />
       )}
-
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() => router.push("/add-vehicle")}
-      >
-        <Text style={styles.addButtonText}>+</Text>
-      </TouchableOpacity>
+      {vehicles.length != 0 && (
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => router.push("/add-vehicle")}
+        >
+          <Text style={styles.addButtonText}>+</Text>
+        </TouchableOpacity>
+      )}
     </SafeAreaView>
   );
 }
@@ -101,6 +93,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F0F4F7",
     paddingHorizontal: 20,
+  },
+  headerContainer: {
+    alignItems: "center",
+    marginTop: 20,
   },
   heroContainer: {
     flex: 1,
@@ -138,37 +134,6 @@ const styles = StyleSheet.create({
   },
   vehicleList: {
     paddingVertical: 20,
-  },
-  card: {
-    flexDirection: "row",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 10,
-    marginBottom: 15,
-    padding: 15,
-    elevation: 3,
-  },
-  vehicleImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 10,
-  },
-  vehicleDetails: {
-    flex: 1,
-    marginLeft: 15,
-    justifyContent: "center",
-  },
-  vehicleName: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#333333",
-  },
-  vehicleType: {
-    fontSize: 14,
-    color: "#7A8B97",
-  },
-  engineCC: {
-    fontSize: 14,
-    color: "#7A8B97",
   },
   addButton: {
     position: "absolute",

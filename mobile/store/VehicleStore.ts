@@ -2,18 +2,22 @@ import { create } from "zustand";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Vehicle, VehicleStore } from "@/types/Profile.types";
 import { useAutoIncrementStore } from "./AutoIncrementStore";
+import { useProfileStore } from "./ProfileStore";
 
 const VEHICLES_KEY = "vehicles";
 
 export const useVehicleStore = create<VehicleStore>((set) => ({
   vehicles: [],
+
   addVehicle: async (vehicle) => {
     try {
       const { getNextVehicleId } = useAutoIncrementStore.getState();
       const nextVehicleId = await getNextVehicleId();
       const newVehicle = { ...vehicle, id: nextVehicleId };
-      const updatedVehicles = [...get().vehicles, newVehicle];
-      set({ vehicles: updatedVehicles });
+      const vehiclesString = await AsyncStorage.getItem(VEHICLES_KEY);
+      const allVehicles = vehiclesString ? JSON.parse(vehiclesString) : [];
+      const updatedVehicles = [...allVehicles, newVehicle];
+      set({ vehicles: updatedVehicles.filter(v => v.profileId === vehicle.profileId) });
       await AsyncStorage.setItem(VEHICLES_KEY, JSON.stringify(updatedVehicles));
     } catch (error) {
       console.error('Failed to add vehicle:', error);
@@ -22,15 +26,17 @@ export const useVehicleStore = create<VehicleStore>((set) => ({
 
   removeVehicle: async (vehicleId) => {
     try {
-      const updatedVehicles = get().vehicles.filter(
-        (vehicle) => vehicle.id !== vehicleId
-      );
-      set({ vehicles: updatedVehicles });
+      const vehiclesString = await AsyncStorage.getItem(VEHICLES_KEY);
+      const allVehicles = vehiclesString ? JSON.parse(vehiclesString) : [];
+      const updatedVehicles = allVehicles.filter(v => v.id !== vehicleId);
+      const currentProfile = useProfileStore.getState().currentProfile;
+      set({ vehicles: updatedVehicles.filter(v => v.profileId === currentProfile?.id) });
       await AsyncStorage.setItem(VEHICLES_KEY, JSON.stringify(updatedVehicles));
     } catch (error) {
       console.error('Failed to remove vehicle:', error);
     }
   },
+
   loadVehicles: async () => {
     try {
       const vehiclesString = await AsyncStorage.getItem(VEHICLES_KEY);
@@ -40,13 +46,12 @@ export const useVehicleStore = create<VehicleStore>((set) => ({
       console.error('Failed to load vehicles:', error);
     }
   },
+
   loadCurrentVehicles: async (profileId) => {
     try {
       const vehiclesString = await AsyncStorage.getItem(VEHICLES_KEY);
       const allVehicles = vehiclesString ? JSON.parse(vehiclesString) : [];
-      const currentVehicles = allVehicles.filter(
-        (vehicle) => vehicle.profileId === profileId
-      );
+      const currentVehicles = allVehicles.filter(v => v.profileId === profileId);
       set({ vehicles: currentVehicles });
     } catch (error) {
       console.error('Failed to load current vehicles:', error);
@@ -59,15 +64,14 @@ export const useVehicleFormStore = create<VehicleFormStore>((set) => ({
   type: 2 as VehicleType,
   engineCC: 0,
   errors: {},
-  setName: (name) => set((state) => ({ name, })),
-  setType: (type) => set((state) => ({ type, })),
-  setEngineCC: (engineCC) => set((state) => ({ engineCC, })),
+  setName: (name) => set({ name }),
+  setType: (type) => set({ type }),
+  setEngineCC: (engineCC) => set({ engineCC }),
   setErrors: (errors) => set({ errors }),
-  clearVehicleForm: () =>
-    set({
-      name: "",
-      type: 2 as VehicleType,
-      engineCC: 0,
-      errors: {},
-    }),
+  clearVehicleForm: () => set({
+    name: "",
+    type: 2 as VehicleType,
+    engineCC: 0,
+    errors: {},
+  }),
 }));
