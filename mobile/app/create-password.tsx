@@ -73,8 +73,8 @@ export default function CreatePassword() {
       password: secure ? passwordArray.join("") : "",
       isProtected: secure,
     };
-    setCurrentProfile(profile);
-    await addProfile(profile);
+    const profileId = await addProfile(profile);
+    setCurrentProfile({ ...profile, id: profileId });
     setAuthenticated(true);
   };
 

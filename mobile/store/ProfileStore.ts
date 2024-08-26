@@ -21,6 +21,7 @@ export const useProfileStore = create<ProfileStore>((set) => ({
             );
             return { profiles: updatedProfiles };
         });
+        return nextProfileId;
     },
     loadProfiles: async () => {
         try {
@@ -44,4 +45,11 @@ export const useProfileStore = create<ProfileStore>((set) => ({
             return { profiles: updatedProfiles };
         });
     },
+    deleteAllAccounts: async () => {
+        try {
+            await AsyncStorage.clear();
+        } catch (err) {
+            console.log("Error clearing local storage", err);
+        }
+    }
 }));

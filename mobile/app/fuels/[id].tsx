@@ -127,7 +127,7 @@ export default function AddRefuel() {
   const onDateChange = (event, date) => {
     setShowDatePicker(false);
     if (date !== undefined) {
-      setDate(date.toISOString().split("T")[0]);
+      setDate(date.toString());
     }
   };
 

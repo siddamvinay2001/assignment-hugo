@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   View,
-  Text,
   FlatList,
   StyleSheet,
   TouchableOpacity,
+  Text,
 } from "react-native";
-import { Picker } from "@react-native-picker/picker";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useRefuelStore } from "@/store/RefuelStore";
@@ -14,6 +13,8 @@ import { useVehicleStore } from "@/store/VehicleStore";
 import { useProfileStore } from "@/store/ProfileStore";
 import CustomText from "@/components/CustomText";
 import RefuelCard from "@/components/RefuelCard";
+import VehiclePicker from "@/components/VehiclePicker";
+import EmptyVehicle from "@/components/EmptyVehicle";
 
 export default function Refuel() {
   const router = useRouter();
@@ -24,7 +25,7 @@ export default function Refuel() {
     setSelectedVehicle,
     selectedVehicle,
   } = useRefuelStore();
-  const { currentVehicles, loadCurrentVehicles, vehicles } = useVehicleStore();
+  const { currentVehicles, loadCurrentVehicles } = useVehicleStore();
   const { currentProfile } = useProfileStore();
 
   useEffect(() => {
@@ -32,15 +33,13 @@ export default function Refuel() {
       await loadCurrentVehicles(currentProfile?.id);
     };
     init();
-  }, []);
+  }, [currentProfile?.id]);
 
   useEffect(() => {
     const initialize = async () => {
       if (selectedVehicle === null) {
-        console.log("intiated");
         if (currentVehicles.length > 0) {
           const initialVehicleId = currentVehicles[0].id;
-          console.log("Inital Vehicle Id", initialVehicleId);
           setSelectedVehicle(initialVehicleId);
           await loadVehicleRefuels(initialVehicleId);
         }
@@ -50,8 +49,7 @@ export default function Refuel() {
     };
     initialize();
   }, [currentProfile, currentVehicles, selectedVehicle]);
-  console.log("Refuels in start: ", refuels);
-  console.log("selected Vehicle", selectedVehicle);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
@@ -64,34 +62,10 @@ export default function Refuel() {
       </View>
 
       {currentVehicles.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <CustomText content="No vehicles available. Please add a vehicle first." />
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => router.push("/add-vehicle")}
-          >
-            <Text style={styles.buttonText}>Add Vehicle →</Text>
-          </TouchableOpacity>
-        </View>
+        <EmptyVehicle />
       ) : (
         <>
-          <View style={styles.dropdownContainer}>
-            <Picker
-              selectedValue={selectedVehicle}
-              onValueChange={(itemValue) => {
-                setSelectedVehicle(itemValue);
-              }}
-              style={styles.picker}
-            >
-              {currentVehicles.map((vehicle) => (
-                <Picker.Item
-                  key={vehicle.id}
-                  label={vehicle.name}
-                  value={vehicle.id}
-                />
-              ))}
-            </Picker>
-          </View>
+          <VehiclePicker currentVehicles={currentVehicles} />
 
           {refuels.length === 0 ? (
             <View style={styles.emptyContainer}>
@@ -136,14 +110,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 20,
   },
-  dropdownContainer: {
-    marginVertical: 20,
-  },
-  picker: {
-    height: 50,
-    width: "100%",
-    backgroundColor: "#FFFFFF",
-  },
   emptyContainer: {
     flex: 1,
     justifyContent: "center",
@@ -160,9 +126,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "600",
-  },
-  list: {
-    paddingVertical: 20,
   },
   addButton: {
     position: "absolute",

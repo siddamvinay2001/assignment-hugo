@@ -13,6 +13,7 @@ import { useVehicleStore } from "@/store/VehicleStore";
 import { useProfileStore } from "@/store/ProfileStore";
 import CustomText from "@/components/CustomText";
 import VehicleCard from "@/components/VehicleCard";
+import { ScrollView } from "react-native-gesture-handler";
 
 export default function Vehicle() {
   const router = useRouter();
@@ -34,7 +35,7 @@ export default function Vehicle() {
     };
 
     initialize();
-  }, [currentProfile]);
+  }, [currentProfile, vehicles]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -46,7 +47,6 @@ export default function Vehicle() {
           style={styles.titleText}
         />
       </View>
-
       {currentVehicles.length === 0 ? (
         <View style={styles.heroContainer}>
           <View style={styles.imageContainer}>

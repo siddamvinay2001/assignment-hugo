@@ -14,7 +14,7 @@ const RefuelCard = ({ refuel }) => {
     await removeRefuel(refuel.id);
     await loadVehicleRefuels(refuel.vehicleId);
   };
-  console.log;
+  const formattedDate = new Date(refuel.date).toLocaleDateString();
   return (
     <View style={styles.card}>
       <View style={styles.row}>
@@ -25,7 +25,7 @@ const RefuelCard = ({ refuel }) => {
         <View style={styles.detailsContainer}>
           <CustomText
             type="secondary"
-            content={`Date: ${refuel.date}`}
+            content={`On ${formattedDate}`}
             variant="titleMedium"
           />
           <CustomText

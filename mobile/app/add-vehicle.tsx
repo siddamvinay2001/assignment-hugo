@@ -201,7 +201,7 @@ export default function AddVehicle() {
                   value={engineCC}
                   onChangeText={(text) => {
                     setEngineCC(Number(text));
-                    validate(); // Validate immediately on change
+                    validate();
                   }}
                   textColor="#193063"
                   placeholder="Enter engine CC"
@@ -307,10 +307,10 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderRadius: 8,
     paddingHorizontal: 8,
-    backgroundColor: "white", // Set background color to white
+    backgroundColor: "white",
   },
   dropdownContainer: {
-    backgroundColor: "white", // Ensure the container background is also white
+    backgroundColor: "white",
   },
   errorInput: {
     borderColor: "#eb2917",
