@@ -115,7 +115,7 @@ export default function Refuel() {
           {refuels.length > 0 && (
             <TouchableOpacity
               style={styles.addButton}
-              onPress={() => router.push("/add-refuelling")}
+              onPress={() => router.push("/fuels/-1")}
             >
               <Text style={styles.addButtonText}>+</Text>
             </TouchableOpacity>

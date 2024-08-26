@@ -1,23 +1,20 @@
 import React, { useState } from "react";
 import { View, StyleSheet, Text, Image } from "react-native";
 import { useRouter } from "expo-router";
-import { useRefuelStore } from "@/store/RefuelStore";
+import { Menu, IconButton, Button, Divider } from "react-native-paper";
+import { useRefuelFormStore, useRefuelStore } from "@/store/RefuelStore";
+import CustomText from "./CustomText";
 
 const RefuelCard = ({ refuel }) => {
   const [visible, setVisible] = useState(false);
-  const { removeRefuel } = useRefuelStore();
+  const { clearRefuelForm } = useRefuelFormStore();
+  const { removeRefuel, loadVehicleRefuels } = useRefuelStore();
   const router = useRouter();
-
-  const handleDelete = async () => {
-    try {
-      await removeRefuel(refuel.id);
-    } catch (error) {
-      console.error("Failed to remove refuelling:", error);
-    } finally {
-      setVisible(false);
-    }
+  const deleteRefuel = async () => {
+    await removeRefuel(refuel.id);
+    await loadVehicleRefuels(refuel.vehicleId);
   };
-
+  console.log;
   return (
     <View style={styles.card}>
       <View style={styles.row}>
@@ -26,12 +23,53 @@ const RefuelCard = ({ refuel }) => {
           style={styles.image}
         />
         <View style={styles.detailsContainer}>
-          <Text style={styles.text}>{refuel.date}</Text>
-          <Text style={styles.text}>{`${refuel.fuelAdded} L`}</Text>
+          <CustomText
+            type="secondary"
+            content={`Date: ${refuel.date}`}
+            variant="titleMedium"
+          />
+          <CustomText
+            type="primary"
+            content={`${refuel.fuelAdded} L`}
+            variant="titleSmall"
+          />
         </View>
       </View>
       <View style={styles.costContainer}>
-        <Text style={styles.costText}>{`+$ ${refuel.cost}`}</Text>
+        <CustomText
+          type="primary"
+          content={`+$ ${refuel.cost}`}
+          style={styles.costText}
+          variant="titleSmall"
+        />
+        <Menu
+          visible={visible}
+          onDismiss={() => setVisible(false)}
+          anchor={
+            <IconButton
+              icon="dots-vertical"
+              size={24}
+              onPress={() => setVisible(true)}
+            />
+          }
+        >
+          <Menu.Item
+            onPress={() => {
+              setVisible(false);
+            }}
+            title="Cancel"
+          />
+          <Divider />
+          <Menu.Item
+            onPress={() => {
+              clearRefuelForm();
+              router.push(`/fuels/${refuel.id}`);
+            }}
+            title="Edit"
+          />
+          <Divider />
+          <Menu.Item onPress={deleteRefuel} title="Delete" />
+        </Menu>
       </View>
     </View>
   );
@@ -65,13 +103,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   costContainer: {
-    justifyContent: "center",
-    alignItems: "flex-end",
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
     flex: 1,
   },
   costText: {
-    fontSize: 16,
-    fontWeight: "bold",
+    fontSize: 14,
+    fontWeight: "100",
   },
 });
 

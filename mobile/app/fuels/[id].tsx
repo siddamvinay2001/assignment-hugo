@@ -84,24 +84,6 @@ export default function AddRefuel() {
     validate();
   }, [validate]);
 
-  useEffect(() => {
-    if (id && id !== "-1") {
-      const loadRefuel = async () => {
-        const refuel = await useRefuelStore
-          .getState()
-          .refuels.find((r) => r.id === parseInt(id));
-        if (refuel) {
-          setFuelAdded(refuel.fuelAdded);
-          setCost(refuel.cost);
-          setDate(refuel.date);
-          setOdometerStart(refuel.odometerStart);
-          setOdometerEnd(refuel.odometerEnd);
-        }
-      };
-      loadRefuel();
-    }
-  }, [id]);
-
   const isFormValid = !Object.keys(errors).length;
 
   const handleAddRefuel = async () => {
@@ -119,7 +101,8 @@ export default function AddRefuel() {
           await addRefuel(newRefuel);
           await loadVehicleRefuels(selectedVehicle);
         } else {
-          await updateRefuel(Number(id));
+          await updateRefuel({ ...newRefuel, id: Number(id) });
+          await loadVehicleRefuels(selectedVehicle);
         }
         router.replace("/");
       } catch (err) {
@@ -131,8 +114,9 @@ export default function AddRefuel() {
   const handleDelete = async () => {
     if (id && id !== "-1") {
       try {
-        await removeRefuel(parseInt(id));
-        router.replace("/success");
+        await removeRefuel(Number(id));
+        await loadVehicleRefuels(selectedVehicle);
+        router.replace("/");
       } catch (err) {
         console.log("Failed to delete refuel", err);
       }
@@ -148,7 +132,7 @@ export default function AddRefuel() {
     setShowDatePicker(false);
     if (date !== undefined) {
       setSelectedDate(date);
-      setDate(date.toISOString().split("T")[0]); // Format date as YYYY-MM-DD
+      setDate(date.toISOString().split("T")[0]);
     }
   };
 
@@ -188,7 +172,7 @@ export default function AddRefuel() {
                 <CustomText
                   type="primary"
                   variant="titleLarge"
-                  content="Fuel Added"
+                  content="Fuel Added(Liters)"
                   required
                   style={styles.inputLabel}
                 />
@@ -221,7 +205,7 @@ export default function AddRefuel() {
                 <CustomText
                   type="primary"
                   variant="titleLarge"
-                  content="Cost"
+                  content="Cost (Rupees $)"
                   required
                   style={styles.inputLabel}
                 />
@@ -362,15 +346,7 @@ export default function AddRefuel() {
             >
               {id === "-1" ? "Add Refuel" : "Update Refuel"}
             </Button>
-            {id !== "-1" && (
-              <Button
-                mode="contained"
-                onPress={handleDelete}
-                style={styles.deleteButton}
-              >
-                Delete Refuel
-              </Button>
-            )}
+
             <Button
               mode="contained"
               onPress={() => {
@@ -380,6 +356,15 @@ export default function AddRefuel() {
             >
               Cancel Refuel
             </Button>
+            {id !== "-1" && (
+              <Button
+                mode="contained"
+                onPress={handleDelete}
+                style={styles.deleteButton}
+              >
+                Delete Refuel
+              </Button>
+            )}
           </View>
         </SafeAreaView>
       </KeyboardAvoidingView>
@@ -442,5 +427,6 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     backgroundColor: "#eb2917",
+    marginTop: 10,
   },
 });
