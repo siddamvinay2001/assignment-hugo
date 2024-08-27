@@ -57,7 +57,7 @@ const Performance = () => {
             <EmptyVehicle />
           </View>
         ) : (
-          <View style={{ flex: 1 }}>
+          <View style={{ flex: 1, width: "100%" }}>
             <VehiclePicker currentVehicles={currentVehicles} />
             {currentRefuels.length === 0 ? (
               <View style={styles.emptyContainer}>
