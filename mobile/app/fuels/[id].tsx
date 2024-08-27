@@ -18,6 +18,7 @@ import FormInput from "@/components/FormInput";
 import FormDatePicker from "@/components/FormDatePicker";
 import FormButtons from "@/components/FormButtons";
 import { refuelSchema } from "@/utils/validationSchema";
+import { useCurrentStore } from "@/store/CurrentStore";
 
 export default function AddRefuel() {
   const {
@@ -35,14 +36,9 @@ export default function AddRefuel() {
     setErrors,
     clearRefuelForm,
   } = useRefuelFormStore();
-  const { currentProfile } = useProfileStore();
-  const {
-    addRefuel,
-    removeRefuel,
-    loadVehicleRefuels,
-    updateRefuel,
-    selectedVehicle,
-  } = useRefuelStore();
+  const { currentProfile, currentVehicleId } = useCurrentStore();
+  const { addRefuel, removeRefuel, updateRefuel, loadRefuels } =
+    useRefuelStore();
   const router = useRouter();
   const { id } = useLocalSearchParams();
 
@@ -89,15 +85,16 @@ export default function AddRefuel() {
           date,
           odometerStart,
           odometerEnd,
-          vehicleId: Number(selectedVehicle),
+          vehicleId: Number(currentVehicleId),
         };
+        console.log("Adding new fuel", newRefuel);
         if (id === "-1") {
           await addRefuel(newRefuel);
-          await loadVehicleRefuels(selectedVehicle);
+          await loadRefuels();
           await clearRefuelForm();
         } else {
           await updateRefuel({ ...newRefuel, id: Number(id) });
-          await loadVehicleRefuels(selectedVehicle);
+          await loadRefuels();
           await clearRefuelForm();
         }
         router.replace("/");
@@ -111,7 +108,7 @@ export default function AddRefuel() {
     if (id && id !== "-1") {
       try {
         await removeRefuel(Number(id));
-        await loadVehicleRefuels(selectedVehicle);
+        await loadRefuels();
         router.replace("/");
       } catch (err) {
         console.log("Failed to delete refuel", err);
@@ -156,7 +153,7 @@ export default function AddRefuel() {
                 keyboardType="numeric"
               />
               <FormInput
-                label="Cost (Rupees $)"
+                label="Cost (Rupees ₹)"
                 value={cost}
                 onChange={(text) => setCost(Number(text))}
                 error={errors.cost}

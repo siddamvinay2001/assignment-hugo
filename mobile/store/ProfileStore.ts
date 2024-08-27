@@ -7,7 +7,6 @@ const PROFILES_KEY = "profiles";
 
 export const useProfileStore = create<ProfileStore>((set) => ({
     profiles: [],
-    currentProfile: null,
     addProfile: async (profile) => {
         const { getNextProfileId } = useAutoIncrementStore.getState();
         const nextProfileId = await getNextProfileId();
@@ -32,8 +31,6 @@ export const useProfileStore = create<ProfileStore>((set) => ({
             console.error("Failed to load profiles from AsyncStorage", error);
         }
     },
-    setCurrentProfile: (profile) => set({ currentProfile: profile }),
-    clearCurrentProfile: () => set({ currentProfile: null }),
     deleteProfile: async (profileId) => {
         set((state) => {
             const updatedProfiles = state.profiles.filter(profile => profile.id !== profileId);

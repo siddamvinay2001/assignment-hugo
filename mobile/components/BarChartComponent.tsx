@@ -25,7 +25,7 @@ const BarChartComponent = ({ data, labels }) => {
         }}
         width={screenWidth}
         height={220}
-        yAxisLabel="$"
+        yAxisLabel="₹"
         chartConfig={{
           backgroundColor: "#e26a00",
           backgroundGradientFrom: "#fb8c00",

@@ -8,11 +8,11 @@ import CustomText from "./CustomText";
 const RefuelCard = ({ refuel }) => {
   const [visible, setVisible] = useState(false);
   const { clearRefuelForm } = useRefuelFormStore();
-  const { removeRefuel, loadVehicleRefuels } = useRefuelStore();
+  const { removeRefuel, loadRefuels } = useRefuelStore();
   const router = useRouter();
   const deleteRefuel = async () => {
     await removeRefuel(refuel.id);
-    await loadVehicleRefuels(refuel.vehicleId);
+    await loadRefuels();
   };
   const formattedDate = new Date(refuel.date).toLocaleDateString();
   return (
@@ -38,7 +38,7 @@ const RefuelCard = ({ refuel }) => {
       <View style={styles.costContainer}>
         <CustomText
           type="primary"
-          content={`+$ ${refuel.cost}`}
+          content={`+₹ ${refuel.cost}`}
           style={styles.costText}
           variant="titleSmall"
         />

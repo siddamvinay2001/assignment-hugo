@@ -1,16 +1,33 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, StyleSheet } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { useRefuelStore } from "@/store/RefuelStore";
+import { useVehicleStore } from "@/store/VehicleStore";
+import { useCurrentStore } from "@/store/CurrentStore";
 
-const VehiclePicker = ({ currentVehicles }) => {
-  const { selectedVehicle, setSelectedVehicle } = useRefuelStore();
+const VehiclePicker = () => {
+  const { vehicles } = useVehicleStore();
+  const { currentProfile, currentVehicleId, setCurrentVehicleId } =
+    useCurrentStore();
+
+  const currentVehicles = vehicles.filter(
+    (vehicle) => vehicle.profileId === currentProfile?.id
+  );
+
+  useEffect(() => {
+    if (currentVehicleId === null) {
+      if (currentVehicles.length > 0) {
+        setCurrentVehicleId(currentVehicles[0].id);
+      }
+    }
+  }, []);
 
   return (
     <View style={styles.dropdownContainer}>
       <Picker
-        selectedValue={selectedVehicle}
-        onValueChange={(itemValue) => setSelectedVehicle(itemValue)}
+        selectedValue={currentVehicleId}
+        onValueChange={async (itemValue) => {
+          setCurrentVehicleId(itemValue);
+        }}
         style={styles.picker}
       >
         {currentVehicles.map((vehicle) => (

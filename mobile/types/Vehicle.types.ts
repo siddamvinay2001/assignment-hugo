@@ -13,7 +13,6 @@ export interface VehicleStore {
     addVehicle: (vehicle: Omit<Vehicle, 'id'>) => Promise<void>;
     removeVehicle: (vehicleId: number) => Promise<void>;
     loadVehicles: () => Promise<void>;
-    loadCurrentVehicles: (profileId: number) => Promise<Vehicle[]>;
 }
 
 export interface VehicleFormStore {

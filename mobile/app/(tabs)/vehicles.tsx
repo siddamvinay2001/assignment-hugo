@@ -10,32 +10,18 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useVehicleStore } from "@/store/VehicleStore";
-import { useProfileStore } from "@/store/ProfileStore";
 import CustomText from "@/components/CustomText";
 import VehicleCard from "@/components/VehicleCard";
 import { ScrollView } from "react-native-gesture-handler";
+import { useCurrentStore } from "@/store/CurrentStore";
 
 export default function Vehicle() {
   const router = useRouter();
-  const { vehicles, currentVehicles, loadCurrentVehicles, loadVehicles } =
-    useVehicleStore();
-  const { currentProfile } = useProfileStore();
-
-  useEffect(() => {
-    const initialize = async () => {
-      if (currentProfile?.id) {
-        try {
-          await loadCurrentVehicles(currentProfile.id);
-        } catch (error) {
-          console.error("Error loading current vehicles:", error);
-        }
-      } else {
-        console.log("No profile ID found, skipping vehicle load.");
-      }
-    };
-
-    initialize();
-  }, [currentProfile, vehicles]);
+  const { vehicles, loadVehicles } = useVehicleStore();
+  const { currentProfile } = useCurrentStore();
+  const currentVehicles = vehicles.filter(
+    (vehicle) => vehicle.profileId === currentProfile?.id
+  );
 
   return (
     <SafeAreaView style={styles.container}>

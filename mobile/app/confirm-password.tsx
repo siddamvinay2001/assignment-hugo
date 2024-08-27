@@ -13,6 +13,7 @@ import { Button, IconButton } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useSession } from "@/providers/SessionProvider";
+import { useCurrentStore } from "@/store/CurrentStore";
 
 export default function ConfirmPassword() {
   const {
@@ -25,9 +26,9 @@ export default function ConfirmPassword() {
     clearPasswordForm,
   } = usePasswordStore();
 
-  const { profiles, currentProfile, clearCurrentProfile, setCurrentProfile } =
-    useProfileStore();
+  const { profiles } = useProfileStore();
   const { setAuthenticated } = useSession();
+  const { setCurrentProfile, currentProfile } = useCurrentStore();
   const router = useRouter();
 
   const handleConfirmPasswordChange = (index: number, value: string) => {
@@ -38,7 +39,6 @@ export default function ConfirmPassword() {
     if (currentProfile?.password === confirmPassword) {
       setCurrentProfile(currentProfile);
       setAuthenticated(true);
-      clearPasswordForm();
     } else {
       setErrors({ confirmPassword: "Passwords do not match" });
     }
@@ -52,7 +52,7 @@ export default function ConfirmPassword() {
           size={24}
           onPress={() => {
             clearPasswordForm();
-            clearCurrentProfile();
+            setCurrentProfile(null);
             router.back();
           }}
         />

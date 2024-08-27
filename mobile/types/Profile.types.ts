@@ -9,11 +9,8 @@ export interface Profile {
 
 export interface ProfileStore {
     profiles: Profile[];
-    currentProfile: Profile | null;
-    addProfile: (profile: Omit<Profile, 'id'>) => Promise<void>;
+    addProfile: (profile: Omit<Profile, 'id'>) => Promise<number>;
     loadProfiles: () => Promise<void>;
-    setCurrentProfile: (profile: Profile) => void;
-    clearCurrentProfile: () => void;
     deleteProfile: (profileId: Number) => Promise<void>;
 }
 

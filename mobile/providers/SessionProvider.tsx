@@ -11,6 +11,9 @@ import {
   useState,
 } from "react";
 import { usePasswordStore } from "@/store/PasswordStore";
+import { useCurrentStore } from "@/store/CurrentStore";
+import { useRefuelFormStore } from "@/store/RefuelStore";
+import { useVehicleFormStore } from "@/store/VehicleStore";
 
 const SessionContext = createContext<SessionContextType | null>(null);
 
@@ -20,21 +23,26 @@ export const SessionProvider: React.FC<{ children: ReactNode }> = ({
   const router = useRouter();
   const navigation = useNavigation();
   const [authenticated, setIsAuthenticated] = useState<boolean>(false);
-  const { profiles, loadProfiles, clearCurrentProfile } = useProfileStore();
+  const { profiles, loadProfiles } = useProfileStore();
+  const { setCurrentProfile, setCurrentVehicleId } = useCurrentStore();
+  const { clearRefuelForm } = useRefuelFormStore();
+  const { clearVehicleForm } = useVehicleFormStore();
   const { clearUserForm } = useUserStore();
   const { clearPasswordForm } = usePasswordStore();
   useEffect(() => {
+    setCurrentVehicleId(null);
+    clearUserForm();
+    clearPasswordForm();
+    clearRefuelForm();
     if (authenticated) {
-      clearPasswordForm();
       if (navigation.canGoBack()) {
         router.dismissAll();
       }
       router.replace("/");
     } else {
       const initialize = async () => {
-        clearCurrentProfile();
-        clearUserForm();
-        clearPasswordForm();
+        setCurrentProfile(null);
+
         await loadProfiles();
         const updatedProfiles = useProfileStore.getState().profiles;
         if (updatedProfiles.length === 0) {

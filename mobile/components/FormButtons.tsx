@@ -16,7 +16,7 @@ const FormButtons = ({
       disabled={!isFormValid}
       style={styles.submitButton}
     >
-      {isFormValid ? "Add Refuel" : "Update Refuel"}
+      {showDelete ? "Update Refuel" : "Add Refuel"}
     </Button>
     <Button mode="contained" onPress={onCancel}>
       Cancel Refuel

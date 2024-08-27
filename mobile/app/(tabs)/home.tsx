@@ -19,30 +19,18 @@ import VehiclePicker from "@/components/VehiclePicker";
 import BarChartComponent from "@/components/BarChartComponent";
 import ProfileIcon from "@/components/ProfileIcon";
 import { useSession } from "@/providers/SessionProvider";
+import { useCurrentStore } from "@/store/CurrentStore";
 
 const screenWidth = Dimensions.get("window").width - 20;
 
 export default function Home() {
   const router = useRouter();
-  const { vehicles, currentVehicles, loadCurrentVehicles } = useVehicleStore();
-  const {
-    currentProfile,
-    setCurrentProfile,
-    deleteProfile,
-    deleteAllAccounts,
-  } = useProfileStore();
-  const { refuels, selectedVehicle, loadVehicleRefuels } = useRefuelStore();
+  const { vehicles } = useVehicleStore();
+  const { deleteProfile, deleteAllAccounts } = useProfileStore();
+  const { refuels } = useRefuelStore();
   const { setAuthenticated } = useSession();
-
-  useEffect(() => {
-    const init = async () => {
-      await loadCurrentVehicles(currentProfile?.id);
-      if (selectedVehicle) {
-        await loadVehicleRefuels(selectedVehicle);
-      }
-    };
-    init();
-  }, [currentProfile?.id, selectedVehicle]);
+  const { currentProfile, currentVehicleId, setCurrentProfile } =
+    useCurrentStore();
 
   const handleSwitchUser = () => {
     setCurrentProfile(null);
@@ -58,6 +46,14 @@ export default function Home() {
     await deleteAllAccounts();
     setAuthenticated(false);
   };
+
+  const currentVehicles = vehicles.filter(
+    (vehicle) => vehicle.profileId === currentProfile?.id
+  );
+
+  const currentRefuels = refuels.filter(
+    (refuel) => refuel.vehicleId === currentVehicleId
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -75,18 +71,18 @@ export default function Home() {
         </View>
         {currentVehicles.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <CustomText content="No refuelling records found." />
+            <CustomText content="No Vehicle records found." />
             <TouchableOpacity
               style={styles.button}
-              onPress={() => router.push("/fuels/-1")}
+              onPress={() => router.push("/add-vehicle")}
             >
-              <Text style={styles.buttonText}>Add Refuelling →</Text>
+              <Text style={styles.buttonText}>Add Vehicles →</Text>
             </TouchableOpacity>
           </View>
         ) : (
           <>
             <VehiclePicker currentVehicles={currentVehicles} />
-            {refuels.length === 0 ? (
+            {currentRefuels.length === 0 ? (
               <View style={styles.emptyContainer}>
                 <CustomText content="No refuelling records found." />
                 <TouchableOpacity
@@ -110,7 +106,7 @@ export default function Home() {
                   style={styles.historyTitle}
                 />
                 <View style={styles.vehicleList}>
-                  {refuels.map((refuel) => (
+                  {currentRefuels.map((refuel) => (
                     <RefuelCard key={refuel.id} refuel={refuel} />
                   ))}
                 </View>

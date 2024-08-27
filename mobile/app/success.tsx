@@ -2,13 +2,12 @@ import React from "react";
 import { View, Image, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { useVehicleFormStore, useVehicleStore } from "@/store/VehicleStore";
 import CustomText from "@/components/CustomText";
+import { useVehicleFormStore } from "@/store/VehicleStore";
 
 export default function Success() {
   const router = useRouter();
   const { name, type, engineCC, clearVehicleForm } = useVehicleFormStore();
-  const {loadCurrentVehicles} = useVehicleStore();
 
   return (
     <SafeAreaView style={styles.container}>

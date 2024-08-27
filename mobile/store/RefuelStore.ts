@@ -6,8 +6,6 @@ const REFUELS_KEY = "refuels";
 
 export const useRefuelStore = create<RefuelStore>((set) => ({
     refuels: [],
-    selectedVehicle: null,
-    setSelectedVehicle: (vehicleId) => set({ selectedVehicle: vehicleId }),
     addRefuel: async (refuel) => {
         try {
             const { getNextRefuelId } = useAutoIncrementStore.getState();
@@ -16,7 +14,6 @@ export const useRefuelStore = create<RefuelStore>((set) => ({
             const refuelsString = await AsyncStorage.getItem(REFUELS_KEY);
             const allRefuels = refuelsString ? JSON.parse(refuelsString) : [];
             const updatedRefuels = [...allRefuels, newRefuel];
-            set({ refuels: updatedRefuels });
             await AsyncStorage.setItem(REFUELS_KEY, JSON.stringify(updatedRefuels));
         } catch (error) {
             console.error('Failed to add refuel:', error);
@@ -29,7 +26,6 @@ export const useRefuelStore = create<RefuelStore>((set) => ({
             const updatedRefuels = allRefuels.map(r =>
                 r.id === updatedRefuel.id ? { ...r, ...updatedRefuel } : r
             );
-            set({ refuels: updatedRefuels });
             await AsyncStorage.setItem(REFUELS_KEY, JSON.stringify(updatedRefuels));
         } catch (error) {
             console.error('Failed to update refuel:', error);
@@ -40,7 +36,6 @@ export const useRefuelStore = create<RefuelStore>((set) => ({
             const refuelsString = await AsyncStorage.getItem(REFUELS_KEY);
             const allRefuels = refuelsString ? JSON.parse(refuelsString) : [];
             const updatedRefuels = allRefuels.filter(r => r.id !== refuelId);
-            set({ refuels: updatedRefuels });
             await AsyncStorage.setItem(REFUELS_KEY, JSON.stringify(updatedRefuels));
         } catch (error) {
             console.error('Failed to remove refuel:', error);
@@ -53,16 +48,6 @@ export const useRefuelStore = create<RefuelStore>((set) => ({
             set({ refuels });
         } catch (error) {
             console.error('Failed to load refuels:', error);
-        }
-    },
-    loadVehicleRefuels: async (vehicleId) => {
-        try {
-            const refuelsString = await AsyncStorage.getItem(REFUELS_KEY);
-            const allRefuels = refuelsString ? JSON.parse(refuelsString) : [];
-            const vehicleRefuels = allRefuels.filter(r => r.vehicleId === vehicleId);
-            set({ refuels: vehicleRefuels });
-        } catch (error) {
-            console.error('Failed to load vehicle refuels:', error);
         }
     },
 }));

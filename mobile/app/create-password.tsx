@@ -16,6 +16,7 @@ import { useRouter } from "expo-router";
 import { useSession } from "@/providers/SessionProvider";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useProfileStore } from "@/store/ProfileStore";
+import { useCurrentStore } from "@/store/CurrentStore";
 
 export default function CreatePassword() {
   const {
@@ -29,8 +30,9 @@ export default function CreatePassword() {
   } = usePasswordStore();
 
   const { setAuthenticated } = useSession();
-  const { addProfile, setCurrentProfile } = useProfileStore();
+  const { addProfile } = useProfileStore();
   const { name, email, nickname, setProtected } = useUserStore();
+  const { setCurrentProfile } = useCurrentStore();
   const router = useRouter();
 
   const handlePasswordChange = (index: number, value: string) => {

@@ -4,16 +4,17 @@ import { Menu, IconButton, Button, Divider } from "react-native-paper";
 import CustomText from "./CustomText";
 import { useVehicleStore } from "@/store/VehicleStore";
 import { useProfileStore } from "@/store/ProfileStore";
+import { useCurrentStore } from "@/store/CurrentStore";
 
 const VehicleCard = ({ vehicle }) => {
   const [visible, setVisible] = useState(false);
-  const { removeVehicle, loadCurrentVehicles } = useVehicleStore();
-  const { currentProfile } = useProfileStore();
+  const { removeVehicle, loadVehicles } = useVehicleStore();
+  const { currentProfile } = useCurrentStore();
 
   const handleDelete = async () => {
     try {
       await removeVehicle(vehicle.id);
-      await loadCurrentVehicles(currentProfile?.id);
+      await loadVehicles(currentProfile?.id);
     } catch (error) {
       console.error("Failed to remove vehicle:", error);
     } finally {

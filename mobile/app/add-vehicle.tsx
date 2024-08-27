@@ -19,7 +19,7 @@ import { debounce } from "lodash";
 import { vehicleSchema } from "@/utils/validationSchema";
 import { Dropdown } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { useProfileStore } from "@/store/ProfileStore";
+import { useCurrentStore } from "@/store/CurrentStore";
 
 const vehicleTypes = [
   { label: "2 Wheeler", value: 2 },
@@ -39,8 +39,8 @@ export default function AddVehicle() {
     setErrors,
     clearVehicleForm,
   } = useVehicleFormStore();
-  const { currentProfile } = useProfileStore();
-  const { addVehicle, loadCurrentVehicles } = useVehicleStore();
+  const { addVehicle, loadVehicles } = useVehicleStore();
+  const { currentProfile } = useCurrentStore();
   const router = useRouter();
 
   const validate = useCallback(
@@ -79,7 +79,7 @@ export default function AddVehicle() {
           engineCC,
         };
         await addVehicle(newVehicle);
-        await loadCurrentVehicles(currentProfile?.id);
+        await loadVehicles();
         router.replace("/success");
       } catch (err) {
         console.log("Failed to add a vehicle", err);

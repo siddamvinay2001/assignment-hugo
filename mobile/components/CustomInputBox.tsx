@@ -6,7 +6,7 @@ interface CustomInputBoxProps {
   value: string[];
   onChange: (index: number, value: string) => void;
   error?: string;
-  style?: ViewStyle; // Allow custom styles for the container
+  style?: ViewStyle;
 }
 
 const CustomInputBox: React.FC<CustomInputBoxProps> = ({
@@ -15,20 +15,15 @@ const CustomInputBox: React.FC<CustomInputBoxProps> = ({
   error,
   style,
 }) => {
-  // Create refs for each TextInput
   const inputRefs = useRef<(TextInput | null)[]>([]);
 
-  // Function to handle the change and focus the next input
   const handleChange = (index: number, text: string) => {
     onChange(index, text);
-
-    // Move focus to the next input if it exists
     if (text.length > 0 && index < inputRefs.current.length - 1) {
       inputRefs.current[index + 1]?.focus();
     }
   };
 
-  // Ensure that inputRefs has the correct length
   useEffect(() => {
     inputRefs.current = inputRefs.current.slice(0, value.length);
   }, [value.length]);
@@ -46,8 +41,8 @@ const CustomInputBox: React.FC<CustomInputBoxProps> = ({
             ref={(ref) => {
               inputRefs.current[index] = ref;
             }}
-            blurOnSubmit={false} // Prevents auto blur on submit
-            returnKeyType={index < value.length - 1 ? "next" : "done"} // Sets the return key type based on the input position
+            blurOnSubmit={false}
+            returnKeyType={index < value.length - 1 ? "next" : "done"}
           />
         </View>
       ))}
@@ -60,11 +55,11 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     justifyContent: "space-between",
-    flexWrap: "wrap", // Allow wrapping to prevent overflow
+    flexWrap: "wrap",
   },
   inputWrapper: {
     alignItems: "center",
-    marginHorizontal: 5, // Adjust the horizontal margin to control spacing between input boxes
+    marginHorizontal: 5,
   },
   input: {
     width: 50,
@@ -74,7 +69,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     textAlign: "center",
     fontSize: 18,
-    backgroundColor: "white", // Ensure background color is white
+    backgroundColor: "white",
   },
   errorInput: {
     borderColor: "#eb2917",

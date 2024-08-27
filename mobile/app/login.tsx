@@ -15,12 +15,12 @@ import {
 } from "react-native";
 import { Avatar } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useCurrentStore } from "@/store/CurrentStore";
 
 export default function Login() {
-  const { profiles, setCurrentProfile } = useProfileStore();
-  const { step } = useUserStore();
+  const { profiles } = useProfileStore();
   const { setAuthenticated } = useSession();
-
+  const { setCurrentProfile } = useCurrentStore();
   const router = useRouter();
   const randomColor = () => {
     const colors = ["red", "yellow", "green", "pink"];

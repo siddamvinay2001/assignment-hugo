@@ -15,6 +15,7 @@ import CustomText from "@/components/CustomText";
 import RefuelCard from "@/components/RefuelCard";
 import VehiclePicker from "@/components/VehiclePicker";
 import EmptyVehicle from "@/components/EmptyVehicle";
+import { useCurrentStore } from "@/store/CurrentStore";
 
 export default function Refuel() {
   const router = useRouter();
@@ -25,31 +26,15 @@ export default function Refuel() {
     setSelectedVehicle,
     selectedVehicle,
   } = useRefuelStore();
-  const { currentVehicles, loadCurrentVehicles } = useVehicleStore();
-  const { currentProfile } = useProfileStore();
 
-  useEffect(() => {
-    const init = async () => {
-      await loadCurrentVehicles(currentProfile?.id);
-    };
-    init();
-  }, [currentProfile?.id]);
-
-  useEffect(() => {
-    const initialize = async () => {
-      if (selectedVehicle === null) {
-        if (currentVehicles.length > 0) {
-          const initialVehicleId = currentVehicles[0].id;
-          setSelectedVehicle(initialVehicleId);
-          await loadVehicleRefuels(initialVehicleId);
-        }
-      } else if (selectedVehicle) {
-        await loadVehicleRefuels(selectedVehicle);
-      }
-    };
-    initialize();
-  }, [currentProfile, currentVehicles, selectedVehicle]);
-
+  const { currentProfile, currentVehicleId } = useCurrentStore();
+  const { vehicles } = useVehicleStore();
+  const currentVehicles = vehicles.filter(
+    (vehicle) => vehicle.profileId === currentProfile?.id
+  );
+  const currentRefuels = refuels.filter(
+    (refuel) => refuel.vehicleId === currentVehicleId
+  );
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
@@ -65,9 +50,9 @@ export default function Refuel() {
         <EmptyVehicle />
       ) : (
         <>
-          <VehiclePicker currentVehicles={currentVehicles} />
+          <VehiclePicker />
 
-          {refuels.length === 0 ? (
+          {currentRefuels.length === 0 ? (
             <View style={styles.emptyContainer}>
               <CustomText content="No refuelling records found." />
               <TouchableOpacity
@@ -79,14 +64,14 @@ export default function Refuel() {
             </View>
           ) : (
             <FlatList
-              data={refuels}
+              data={currentRefuels}
               renderItem={({ item }) => <RefuelCard refuel={item} />}
               keyExtractor={(item) => item.id.toString()}
               contentContainerStyle={styles.vehicleList}
             />
           )}
 
-          {refuels.length > 0 && (
+          {currentRefuels.length > 0 && (
             <TouchableOpacity
               style={styles.addButton}
               onPress={() => router.push("/fuels/-1")}

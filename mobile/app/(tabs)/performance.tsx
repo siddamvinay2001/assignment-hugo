@@ -18,40 +18,28 @@ import { useVehicleStore } from "@/store/VehicleStore";
 import { useProfileStore } from "@/store/ProfileStore";
 import { useRefuelStore } from "@/store/RefuelStore";
 import { useRouter } from "expo-router";
+import { useCurrentStore } from "@/store/CurrentStore";
 
 const screenWidth = Dimensions.get("window").width - 20;
 
 const Performance = () => {
-  const { currentProfile } = useProfileStore();
-  const { selectedVehicle, setSelectedVehicle, refuels, loadVehicleRefuels } =
-    useRefuelStore();
-  const { vehicles, loadCurrentVehicles, currentVehicles } = useVehicleStore();
+  const { refuels } = useRefuelStore();
+  const { vehicles } = useVehicleStore();
+  const { currentProfile, currentVehicleId } = useCurrentStore();
   const router = useRouter();
-  useEffect(() => {
-    const init = async () => {
-      await loadCurrentVehicles(currentProfile?.id);
-    };
-    init();
-  }, [currentProfile?.id]);
+  const currentVehicles = vehicles.filter(
+    (vehicle) => vehicle.profileId === currentProfile?.id
+  );
 
-  useEffect(() => {
-    const initialize = async () => {
-      if (selectedVehicle === null) {
-        if (currentVehicles.length > 0) {
-          const initialVehicleId = currentVehicles[0].id;
-          setSelectedVehicle(initialVehicleId);
-          await loadVehicleRefuels(initialVehicleId);
-        }
-      } else if (selectedVehicle) {
-        await loadVehicleRefuels(selectedVehicle);
-      }
-    };
-    initialize();
-  }, [currentVehicles, selectedVehicle]);
+  const currentRefuels = refuels.filter(
+    (refuel) => refuel.vehicleId === currentVehicleId
+  );
 
-  const moneySpentData = refuels.map((item) => item.cost);
-  const dates = refuels.map((item) => format(new Date(item.date), "MMM"));
-  const mileageData = refuels.map(
+  const moneySpentData = currentRefuels.map((item) => item.cost);
+  const dates = currentRefuels.map((item) =>
+    format(new Date(item.date), "MMM")
+  );
+  const mileageData = currentRefuels.map(
     (item) => item.odometerEnd - item.odometerStart
   );
 
@@ -71,7 +59,7 @@ const Performance = () => {
         ) : (
           <View style={{ flex: 1 }}>
             <VehiclePicker currentVehicles={currentVehicles} />
-            {refuels.length === 0 ? (
+            {currentRefuels.length === 0 ? (
               <View style={styles.emptyContainer}>
                 <CustomText content="No refuelling records found." />
                 <TouchableOpacity
@@ -88,11 +76,6 @@ const Performance = () => {
               </>
             )}
           </View>
-          // <View style={{ flex: 1 }}>
-          //   <VehiclePicker currentVehicles={currentVehicles} />
-          //   <BarChartComponent data={moneySpentData} labels={dates} />
-          //   <LineChartComponent data={mileageData} labels={dates} />
-          // </View>
         )}
       </ScrollView>
     </SafeAreaView>
